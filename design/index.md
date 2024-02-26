@@ -8,6 +8,18 @@ Game concepts undocumented:
 - Organs
 - Actors
 
+** Freedom of movement.
+
+As a text-based game, there is no movement, and actors have no position. To
+serve as a substitute, "openness" exists, determining how much freedom of
+movement characters have. For example, if a character has their movement
+restricted in a wide-open area, they won't be able to hit anyone with melee
+attacks or devour them, though other characters can feed themselves to them.
+While inside an organ, however, everyone is stuck within reach of each other, so
+restricted movement means nothing. The openness of an area is relvant to both
+movement and reach; I might have speed play a part in things, allowing fast
+characters to dodge away from slow ones in melee.
+
 ** The initialize-modify-finalize loop
 
 Whenever anything happens in the game, it happens in three steps. The initialize
@@ -23,4 +35,6 @@ own loop.
 
 All actors have a state, which determines what actions they're able to take.
 Status effects like sleep, restrained, or devoured all change the state an actor
-is in.
+is in. Examples:
+
+- Restrained movement: being held in place.
