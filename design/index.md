@@ -38,3 +38,7 @@ Status effects like sleep, restrained, or devoured all change the state an actor
 is in. Examples:
 
 - Restrained movement: being held in place.
+
+There's a "logging" system that gathers everything that happens in a single bevy
+cycle and writes it to discord all at once. This prevents overloading of the
+discord api.
