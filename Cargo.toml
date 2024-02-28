@@ -9,9 +9,7 @@ edition = "2021"
 bevy = { version = "0.13.0", default-features = false, features = [
   "bevy_asset",
   "bevy_scene",
-  "bevy_winit",
   "bevy_core_pipeline",
   "multi-threaded",
   "x11",
-  "android_shared_stdcxx",
 ] }
