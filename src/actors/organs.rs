@@ -1,3 +1,6 @@
+use bevy::prelude::Component;
+
+#[derive(Component)]
 pub struct Organ {
     pub health_current: i32,
     pub health_max: i32,
@@ -5,6 +8,7 @@ pub struct Organ {
     pub defense: i32,
     pub capacity: i32,
     pub fullness_current: i32,
+    pub organ_type: OrganType,
 }
 
 /// Determines specific behavior of an organ
