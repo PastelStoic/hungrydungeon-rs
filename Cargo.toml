@@ -13,3 +13,4 @@ bevy = { version = "0.13.0", default-features = false, features = [
   "multi-threaded",
   "x11",
 ] }
+rand = "0.8.5"
