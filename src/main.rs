@@ -9,5 +9,6 @@ fn main() {
         .add_plugins(MinimalPlugins)
         .add_event::<AttackActionEvent>()
         .add_systems(Update, run_ai)
+        .add_systems(Update, respond_to_ai)
         .run();
 }
