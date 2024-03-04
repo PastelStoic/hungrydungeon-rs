@@ -70,3 +70,8 @@ pub fn respond_to_ai(
         }
     }
 }
+
+pub fn respond_to_vore_action(mut commands: Commands, query: Query<(Entity, &Name, &mut Actor)>, event: (Entity, Entity, Entity)) {
+    // event is pred, prey, organ
+    commands.entity(event.0).add_child(event.2);
+}
