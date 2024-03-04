@@ -14,3 +14,4 @@ bevy = { version = "0.13.0", default-features = false, features = [
   "x11",
 ] }
 rand = "0.8.5"
+strfmt = "0.2.4"
