@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use rand::prelude::*;
+use rand::{distributions::WeightedIndex, prelude::*};
 
 use crate::AiTimer;
 
@@ -34,8 +34,10 @@ pub fn run_ai(
             }
 
             // picks target, creates attack event. Unique events for every possible action?
-            if let Some(target) = possible_targets.first() {
-                writer.send(AttackActionEvent(l1.0, target.1));
+            if let Ok(windex) = WeightedIndex::new(possible_targets.iter().map(|item| item.0)) {
+                let mut rng = thread_rng();
+                let target = possible_targets[windex.sample(&mut rng)].1;
+                writer.send(AttackActionEvent(l1.0, target));
             }
         }
     }
