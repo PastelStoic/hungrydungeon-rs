@@ -35,7 +35,7 @@ pub fn run_ai(
 
 pub fn respond_to_ai(
     mut reader: EventReader<AttackActionEvent>,
-    mut query: Query<(Entity, &Name, &mut Actor, Option<&Ai>)>,
+    mut query: Query<(Entity, &Name, &mut Actor)>,
 ) {
     for ev in reader.read() {
         let [attacker, mut target] = query.many_mut([ev.0, ev.1]);

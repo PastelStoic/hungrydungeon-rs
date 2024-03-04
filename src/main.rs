@@ -1,7 +1,5 @@
 pub mod actors;
-pub mod components;
-
-use actors::ai::*;
+use actors::{ai::*, Actor};
 use bevy::prelude::*;
 
 fn main() {
@@ -11,4 +9,17 @@ fn main() {
         .add_systems(Update, run_ai)
         .add_systems(Update, respond_to_ai)
         .run();
+}
+
+// todo: spawn in two slimes to attack stuff
+fn spawn_test(mut commands: Commands) {
+    commands.spawn((
+        Name::new("Slime A"),
+        Actor {
+            health_current: 100,
+            health_max: 100,
+            attack: 10,
+            defense: 10,
+        }
+    ));
 }
