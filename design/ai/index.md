@@ -21,3 +21,7 @@ AI flow:
 3. This event is received, and the action is checked to see if it's still valid.
    If not, an AiShouldRunEvent is sent again, restarting the loop. If so, the
    action runs.
+
+It now seems likely that every possible action will require its own system, its
+own event, and its own process cycle. The code is likely to grow large, over
+time, but hopefully the added clarity will make up for it.
