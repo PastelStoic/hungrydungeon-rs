@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 use rand::prelude::*;
 
+use crate::AiTimer;
+
 use super::Actor;
 
 #[derive(Component)]
@@ -12,7 +14,13 @@ pub struct AttackActionEvent(Entity, Entity);
 pub fn run_ai(
     query: Query<(Entity, &Name, &Actor, Option<&Ai>)>,
     mut writer: EventWriter<AttackActionEvent>,
+    aitimer: Res<AiTimer>,
 ) {
+    // early return if it's not time yet
+    if !aitimer.0.finished() {
+        return;
+    }
+
     // has a list of possible actions based on AI type
     // each of these actions is calculated, given a weight
     // for now, skip all this, just find the nearest actor and attack
