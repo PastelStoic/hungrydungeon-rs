@@ -9,7 +9,10 @@ use super::Actor;
 pub struct Ai;
 
 #[derive(Event)]
-pub struct AttackActionEvent(Entity, Entity);
+pub struct AttackActionEvent {
+    attacker: Entity,
+    defender: Entity,
+}
 
 pub fn run_ai(
     query: Query<(Entity, &Name, &Actor, Option<&Ai>)>,
@@ -37,7 +40,10 @@ pub fn run_ai(
             if let Ok(windex) = WeightedIndex::new(possible_targets.iter().map(|item| item.0)) {
                 let mut rng = thread_rng();
                 let target = possible_targets[windex.sample(&mut rng)].1;
-                writer.send(AttackActionEvent(l1.0, target));
+                writer.send(AttackActionEvent {
+                    attacker: l1.0,
+                    defender: target,
+                });
             }
         }
     }
@@ -48,7 +54,7 @@ pub fn respond_to_ai(
     mut query: Query<(Entity, &Name, &mut Actor)>,
 ) {
     for ev in reader.read() {
-        let [attacker, mut target] = query.many_mut([ev.0, ev.1]);
+        let [attacker, mut target] = query.many_mut([ev.attacker, ev.defender]);
         // this works!
         if target.2.health_current > 0 {
             target.2.health_current -= attacker.2.attack;
