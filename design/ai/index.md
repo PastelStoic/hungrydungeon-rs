@@ -14,10 +14,10 @@ passed around fitting in a single function? I'll worry about that later.
 
 AI flow:
 
-1. Every game timer trigger, AI is polled to see if they're in a state to act.
+1. Every game timer trigger, AI are polled to see if they're in a state to act.
    If so, they send an AiShouldRunEvent.
 2. The event is received, and the AI chooses what to do. This creates an
-   AiRunActionEvent.
+   AiRunActionEvent, depending on what choice they make.
 3. This event is received, and the action is checked to see if it's still valid.
    If not, an AiShouldRunEvent is sent again, restarting the loop. If so, the
    action runs.
