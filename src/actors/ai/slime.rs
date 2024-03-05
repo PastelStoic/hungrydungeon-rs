@@ -74,13 +74,15 @@ pub fn run_ai(
     mut query: Query<(Entity, &Name, &mut Actor)>,
 ) {
     for ev in reader.read() {
-        let [attacker, mut target] = query.many_mut([ev.attacker, ev.defender]);
-        // check if the slime is still active, if the target is still in reach, if its still alive
-        // the "is this target valid" check should be the same code both here and above
-        target.2.health_current -= attacker.2.attack;
-        println!(
-            "{} attacks {}, dealing {} damage!",
-            attacker.1, attacker.2.attack, target.1,
-        );
+        let actors = query.get_many_mut([ev.attacker, ev.defender]);
+        if let Ok([attacker, mut target]) = actors {
+            // check if the slime is still active, if the target is still in reach, if its still alive
+            // the "is this target valid" check should be the same code both here and above
+            target.2.health_current -= attacker.2.attack;
+            println!(
+                "{} attacks {}, dealing {} damage!",
+                attacker.1, attacker.2.attack, target.1,
+            );
+        }
     }
 }
