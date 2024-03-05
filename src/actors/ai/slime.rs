@@ -11,6 +11,7 @@ pub struct SlimeAiPlugin;
 impl Plugin for SlimeAiPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<SlimeAiShouldRunEvent>()
+            .add_event::<AttackActionEvent>()
             .add_systems(Update, (check_ai_should_run, ai_choose_action, run_ai));
     }
 }
@@ -36,12 +37,14 @@ fn check_ai_should_run(
 
 fn ai_choose_action(
     query: Query<(Entity, &Name, &Actor, Option<&SlimeAi>)>,
+    mut ev: EventReader<SlimeAiShouldRunEvent>,
     mut writer: EventWriter<AttackActionEvent>,
 ) {
     // has a list of possible actions based on AI type
     // each of these actions is calculated, given a weight
     // for now, skip all this, just find the nearest actor and attack
-    for slime in &query {
+    for ev in ev.read() {
+        let slime = query.get(ev.0).unwrap();
         if slime.3.is_some() {
             let mut possible_targets = vec![];
             for target in &query {
@@ -81,7 +84,7 @@ pub fn run_ai(
             target.2.health_current -= attacker.2.attack;
             println!(
                 "{} attacks {}, dealing {} damage!",
-                attacker.1, attacker.2.attack, target.1,
+                attacker.1, target.1, attacker.2.attack
             );
         }
     }
