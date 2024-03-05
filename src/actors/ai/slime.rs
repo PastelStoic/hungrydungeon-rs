@@ -20,7 +20,7 @@ struct SlimeAiShouldRunEvent(Entity);
 
 fn check_ai_should_run(
     mut ev: EventWriter<SlimeAiShouldRunEvent>,
-    query: Query<(Entity, &Actor, &SlimeAi)>,
+    query: Query<(Entity, &Actor), With<SlimeAi>>,
     aitimer: Res<AiTimer>,
 ) {
     // early return if it's not time yet
