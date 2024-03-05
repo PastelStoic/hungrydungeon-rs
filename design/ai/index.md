@@ -25,6 +25,3 @@ AI flow:
 It now seems likely that every possible action will require its own system, its
 own event, and its own process cycle. The code is likely to grow large, over
 time, but hopefully the added clarity will make up for it.
-
-Wouldn't each AI also have their own system? It might be. I'll first block out
-the various actions the AI can take.
