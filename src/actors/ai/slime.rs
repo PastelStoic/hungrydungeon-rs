@@ -42,7 +42,7 @@ fn ai_choose_action(
     // each of these actions is calculated, given a weight
     // for now, skip all this, just find the nearest actor and attack
     for slime in &query {
-        if let Some(_) = slime.3 {
+        if slime.3.is_some() {
             let mut possible_targets = vec![];
             for target in &query {
                 if slime.0 != target.0 && target.2.health_current > 0 {
