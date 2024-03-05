@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use rand::{distributions::WeightedIndex, prelude::*};
 
-use crate::{actors::Actor, AiTimer, AttackActionEvent};
+use crate::{actors::Actor, AiTimer};
 
 #[derive(Component)]
 pub struct SlimeAi;

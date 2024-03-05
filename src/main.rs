@@ -1,5 +1,8 @@
 pub mod actors;
-use actors::{ai::*, Actor};
+use actors::{
+    ai::{self, *},
+    Actor,
+};
 use bevy::prelude::*;
 
 fn main() {
@@ -19,7 +22,7 @@ fn spawn_test(mut commands: Commands) {
             attack: 10,
             defense: 10,
         },
-        Ai,
+        ai::slime::SlimeAi,
     ));
     commands.spawn((
         Name::new("Slime B"),

@@ -2,8 +2,6 @@ pub mod slime;
 
 use bevy::prelude::*;
 
-use super::Actor;
-
 pub struct AiPlugin;
 
 impl Plugin for AiPlugin {
