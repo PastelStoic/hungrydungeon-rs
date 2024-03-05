@@ -41,12 +41,12 @@ fn ai_choose_action(
     // has a list of possible actions based on AI type
     // each of these actions is calculated, given a weight
     // for now, skip all this, just find the nearest actor and attack
-    for l1 in &query {
-        if let Some(_) = l1.3 {
+    for slime in &query {
+        if let Some(_) = slime.3 {
             let mut possible_targets = vec![];
-            for l2 in &query {
-                if l1.0 != l2.0 {
-                    possible_targets.push((1, l2.0));
+            for target in &query {
+                if slime.0 != target.0 && target.2.health_current > 0 {
+                    possible_targets.push((1, target.0));
                 }
             }
 
@@ -55,9 +55,8 @@ fn ai_choose_action(
                 let mut rng = thread_rng();
                 let target = possible_targets[windex.sample(&mut rng)].1;
                 writer.send(AttackActionEvent {
-                    attacker: l1.0,
+                    attacker: slime.0,
                     defender: target,
-                    message_template: "Slime attacks!",
                 });
             }
         }
@@ -68,7 +67,6 @@ fn ai_choose_action(
 pub struct AttackActionEvent {
     pub attacker: Entity,
     pub defender: Entity,
-    pub message_template: &'static str,
 }
 
 pub fn run_ai(
@@ -77,18 +75,12 @@ pub fn run_ai(
 ) {
     for ev in reader.read() {
         let [attacker, mut target] = query.many_mut([ev.attacker, ev.defender]);
-        // this works!
-        if target.2.health_current > 0 {
-            target.2.health_current -= attacker.2.attack;
-            println!(
-                "AI {} dealt {} damage to {}, leaving them with {} hp.",
-                attacker.1, attacker.2.attack, target.1, target.2.health_current
-            );
-        } else {
-            println!(
-                "AI {} sees {}, but their hp isn't high enough to attack.",
-                attacker.1, target.1,
-            );
-        }
+        // check if the slime is still active, if the target is still in reach, if its still alive
+        // the "is this target valid" check should be the same code both here and above
+        target.2.health_current -= attacker.2.attack;
+        println!(
+            "{} attacks {}, dealing {} damage!",
+            attacker.1, attacker.2.attack, target.1,
+        );
     }
 }
