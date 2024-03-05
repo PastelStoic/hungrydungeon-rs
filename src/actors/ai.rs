@@ -1,77 +1,23 @@
-use bevy::prelude::*;
-use rand::{distributions::WeightedIndex, prelude::*};
+pub mod slime;
 
-use crate::AiTimer;
+use bevy::prelude::*;
 
 use super::Actor;
 
-#[derive(Component)]
-pub struct Ai;
+pub struct AiPlugin;
 
-#[derive(Event)]
-pub struct AttackActionEvent {
-    attacker: Entity,
-    defender: Entity,
-}
-
-pub fn run_ai(
-    query: Query<(Entity, &Name, &Actor, Option<&Ai>)>,
-    mut writer: EventWriter<AttackActionEvent>,
-    aitimer: Res<AiTimer>,
-) {
-    // early return if it's not time yet
-    if !aitimer.0.finished() {
-        return;
-    }
-
-    // has a list of possible actions based on AI type
-    // each of these actions is calculated, given a weight
-    // for now, skip all this, just find the nearest actor and attack
-    for l1 in &query {
-        if let Some(_) = l1.3 {
-            let mut possible_targets = vec![];
-            for l2 in &query {
-                if l1.0 != l2.0 {
-                    possible_targets.push((1, l2.0));
-                }
-            }
-
-            // picks target, creates attack event. Unique events for every possible action?
-            if let Ok(windex) = WeightedIndex::new(possible_targets.iter().map(|item| item.0)) {
-                let mut rng = thread_rng();
-                let target = possible_targets[windex.sample(&mut rng)].1;
-                writer.send(AttackActionEvent {
-                    attacker: l1.0,
-                    defender: target,
-                });
-            }
-        }
+impl Plugin for AiPlugin {
+    fn build(&self, app: &mut App) {
+        app.insert_resource(AiTimer(Timer::from_seconds(10., TimerMode::Repeating)))
+            // Ai decision trees go here
+            .add_systems(Update, tick_ai_timer)
+            .add_plugins(slime::SlimeAiPlugin);
     }
 }
 
-pub fn respond_to_ai(
-    mut reader: EventReader<AttackActionEvent>,
-    mut query: Query<(Entity, &Name, &mut Actor)>,
-) {
-    for ev in reader.read() {
-        let [attacker, mut target] = query.many_mut([ev.attacker, ev.defender]);
-        // this works!
-        if target.2.health_current > 0 {
-            target.2.health_current -= attacker.2.attack;
-            println!(
-                "AI {} dealt {} damage to {}, leaving them with {} hp.",
-                attacker.1, attacker.2.attack, target.1, target.2.health_current
-            );
-        } else {
-            println!(
-                "AI {} sees {}, but their hp isn't high enough to attack.",
-                attacker.1, target.1,
-            );
-        }
-    }
-}
+#[derive(Resource)]
+pub struct AiTimer(Timer);
 
-pub fn respond_to_vore_action(mut commands: Commands, query: Query<(Entity, &Name, &mut Actor)>, event: (Entity, Entity, Entity)) {
-    // event is pred, prey, organ
-    commands.entity(event.0).add_child(event.2);
+fn tick_ai_timer(mut aitimer: ResMut<AiTimer>, time: Res<Time>) {
+    aitimer.0.tick(time.delta());
 }
