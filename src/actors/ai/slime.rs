@@ -21,7 +21,12 @@ struct SlimeAiShouldRunEvent(Entity);
 fn check_ai_should_run(
     mut ev: EventWriter<SlimeAiShouldRunEvent>,
     query: Query<(Entity, &Actor, &SlimeAi)>,
+    aitimer: Res<AiTimer>,
 ) {
+    // early return if it's not time yet
+    if !aitimer.0.finished() {
+        return;
+    }
     for thing in &query {
         if thing.1.health_current > 0 {
             ev.send(SlimeAiShouldRunEvent(thing.0));
@@ -32,13 +37,7 @@ fn check_ai_should_run(
 fn ai_choose_action(
     query: Query<(Entity, &Name, &Actor, Option<&SlimeAi>)>,
     mut writer: EventWriter<AttackActionEvent>,
-    aitimer: Res<AiTimer>,
 ) {
-    // early return if it's not time yet
-    if !aitimer.0.finished() {
-        return;
-    }
-
     // has a list of possible actions based on AI type
     // each of these actions is calculated, given a weight
     // for now, skip all this, just find the nearest actor and attack
