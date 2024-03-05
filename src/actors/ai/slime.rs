@@ -10,17 +10,17 @@ pub struct SlimeAiPlugin;
 
 impl Plugin for SlimeAiPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<SlimeAiShouldRunEvent>()
+        app.add_event::<AiShouldRunEvent>()
             .add_event::<AttackActionEvent>()
             .add_systems(Update, (check_ai_should_run, ai_choose_action, run_ai));
     }
 }
 
 #[derive(Event)]
-struct SlimeAiShouldRunEvent(Entity);
+struct AiShouldRunEvent(Entity);
 
 fn check_ai_should_run(
-    mut ev: EventWriter<SlimeAiShouldRunEvent>,
+    mut ev: EventWriter<AiShouldRunEvent>,
     query: Query<(Entity, &Actor), With<SlimeAi>>,
     aitimer: Res<AiTimer>,
 ) {
@@ -30,14 +30,14 @@ fn check_ai_should_run(
     }
     for thing in &query {
         if thing.1.health_current > 0 {
-            ev.send(SlimeAiShouldRunEvent(thing.0));
+            ev.send(AiShouldRunEvent(thing.0));
         }
     }
 }
 
 fn ai_choose_action(
     query: Query<(Entity, &Name, &Actor, Option<&SlimeAi>)>,
-    mut ev: EventReader<SlimeAiShouldRunEvent>,
+    mut ev: EventReader<AiShouldRunEvent>,
     mut writer: EventWriter<AttackActionEvent>,
 ) {
     // has a list of possible actions based on AI type
