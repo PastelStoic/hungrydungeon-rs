@@ -11,13 +11,18 @@ pub struct SlimeAiPlugin;
 impl Plugin for SlimeAiPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<AiShouldRunEvent>()
-            .add_event::<AttackActionEvent>()
+            .add_event::<ActionEvent>()
             .add_systems(Update, (check_ai_should_run, ai_choose_action, run_ai));
     }
 }
 
 #[derive(Event)]
 struct AiShouldRunEvent(Entity);
+
+#[derive(Event)]
+pub enum ActionEvent {
+    Attack { attacker: Entity, defender: Entity },
+}
 
 fn check_ai_should_run(
     mut ev: EventWriter<AiShouldRunEvent>,
@@ -38,7 +43,7 @@ fn check_ai_should_run(
 fn ai_choose_action(
     query: Query<(Entity, &Name, &Actor, Option<&SlimeAi>)>,
     mut ev: EventReader<AiShouldRunEvent>,
-    mut writer: EventWriter<AttackActionEvent>,
+    mut writer: EventWriter<ActionEvent>,
 ) {
     // has a list of possible actions based on AI type
     // each of these actions is calculated, given a weight
@@ -57,7 +62,7 @@ fn ai_choose_action(
             if let Ok(windex) = WeightedIndex::new(possible_targets.iter().map(|item| item.0)) {
                 let mut rng = thread_rng();
                 let target = possible_targets[windex.sample(&mut rng)].1;
-                writer.send(AttackActionEvent {
+                writer.send(ActionEvent::Attack {
                     attacker: slime.0,
                     defender: target,
                 });
@@ -66,26 +71,21 @@ fn ai_choose_action(
     }
 }
 
-#[derive(Event)]
-pub struct AttackActionEvent {
-    pub attacker: Entity,
-    pub defender: Entity,
-}
-
-pub fn run_ai(
-    mut reader: EventReader<AttackActionEvent>,
-    mut query: Query<(Entity, &Name, &mut Actor)>,
-) {
+pub fn run_ai(mut reader: EventReader<ActionEvent>, mut query: Query<(Entity, &Name, &mut Actor)>) {
     for ev in reader.read() {
-        let actors = query.get_many_mut([ev.attacker, ev.defender]);
-        if let Ok([attacker, mut target]) = actors {
-            // check if the slime is still active, if the target is still in reach, if its still alive
-            // the "is this target valid" check should be the same code both here and above
-            target.2.health_current -= attacker.2.attack;
-            println!(
-                "{} attacks {}, dealing {} damage!",
-                attacker.1, target.1, attacker.2.attack
-            );
+        match ev {
+            ActionEvent::Attack { attacker, defender } => {
+                let actors = query.get_many_mut([*attacker, *defender]);
+                if let Ok([attacker, mut target]) = actors {
+                    // check if the slime is still active, if the target is still in reach, if its still alive
+                    // the "is this target valid" check should be the same code both here and above
+                    target.2.health_current -= attacker.2.attack;
+                    println!(
+                        "{} attacks {}, dealing {} damage!",
+                        attacker.1, target.1, attacker.2.attack
+                    );
+                }
+            }
         }
     }
 }
