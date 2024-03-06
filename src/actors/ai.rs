@@ -1,4 +1,5 @@
 pub mod slime;
+pub mod slimegirl;
 
 use bevy::prelude::*;
 
