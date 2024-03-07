@@ -1,15 +1,28 @@
 pub mod actors;
 pub mod rooms;
+use std::time::Duration;
+
 use actors::{
     ai::{self, *},
-    organs::Organ,
+    organs::{Organ, OrganPlugin},
     Actor,
 };
-use bevy::prelude::*;
+use bevy::{
+    app::{RunMode, ScheduleRunnerPlugin},
+    prelude::*,
+};
 
 fn main() {
     App::new()
-        .add_plugins((MinimalPlugins, AiPlugin))
+        .add_plugins((
+            MinimalPlugins.set(ScheduleRunnerPlugin {
+                run_mode: RunMode::Loop {
+                    wait: Some(Duration::from_millis(100)),
+                },
+            }),
+            AiPlugin,
+            OrganPlugin,
+        ))
         .add_systems(Startup, spawn_test)
         .run();
 }
