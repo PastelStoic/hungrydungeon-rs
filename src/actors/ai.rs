@@ -10,7 +10,7 @@ impl Plugin for AiPlugin {
         app.insert_resource(AiTimer(Timer::from_seconds(10., TimerMode::Repeating)))
             // Ai decision trees go here
             .add_systems(Update, tick_ai_timer)
-            .add_plugins(slime::SlimeAiPlugin);
+            .add_plugins((slime::SlimeAiPlugin, slimegirl::SlimeGirlAiPlugin));
     }
 }
 
