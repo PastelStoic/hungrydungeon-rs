@@ -156,7 +156,7 @@ fn run_devour(
             organ,
         } = ev
         {
-            // do some calculation based on the stats of the parent
+            // do some calculation based on the stats of the parent to determine if success
 
             // sets parent of target to the organ
             let organ = q_organs
