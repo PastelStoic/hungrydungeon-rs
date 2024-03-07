@@ -1,18 +1,34 @@
 pub mod actors;
 pub mod rooms;
-use std::time::Duration;
+use std::{io::stdin, sync::mpsc::{self, Receiver}, thread, time::Duration};
 
-use actors::{
-    ai::{self, *},
-    organs::{Organ, OrganPlugin},
-    Actor,
-};
+use actors::{ai::*, organs::OrganPlugin};
 use bevy::{
     app::{RunMode, ScheduleRunnerPlugin},
     prelude::*,
 };
 
 fn main() {
+    let (tx, rx) = mpsc::channel();
+
+    let game = thread::spawn(|| run_game());
+
+    loop {
+        let mut s = String::new();
+        stdin().read_line(&mut s).expect("Invalid string input");
+        println!("result was s");
+
+        if s == "exit" {
+            break;
+        }
+    }
+
+    game.join().unwrap();
+}
+
+struct GameInputReceiver(Receiver<String>);
+
+fn run_game(rx: Receiver<String>) {
     App::new()
         .add_plugins((
             MinimalPlugins.set(ScheduleRunnerPlugin {
@@ -24,6 +40,7 @@ fn main() {
             OrganPlugin,
         ))
         .add_systems(Startup, spawn_test)
+        .insert_non_send_resource(GameInputReceiver(rx))
         .run();
 }
 
