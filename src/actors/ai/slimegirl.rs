@@ -1,7 +1,10 @@
 use bevy::prelude::*;
 use rand::{distributions::WeightedIndex, prelude::*};
 
-use crate::{actors::Actor, AiTimer};
+use crate::{
+    actors::{organs::Organ, Actor},
+    AiTimer,
+};
 
 #[derive(Component)]
 pub struct SlimeGirlAi;
@@ -12,7 +15,15 @@ impl Plugin for SlimeGirlAiPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<AiShouldRunEvent>()
             .add_event::<ActionEvent>()
-            .add_systems(Update, (check_ai_should_run, ai_choose_action, run_ai));
+            .add_systems(
+                Update,
+                (
+                    check_ai_should_run,
+                    ai_choose_action,
+                    run_attack,
+                    run_devour,
+                ),
+            );
     }
 }
 
@@ -21,7 +32,15 @@ struct AiShouldRunEvent(Entity);
 
 #[derive(Event)]
 pub enum ActionEvent {
-    Attack { attacker: Entity, defender: Entity },
+    Attack {
+        attacker: Entity,
+        defender: Entity,
+    },
+    Devour {
+        attacker: Entity,
+        defender: Entity,
+        organ: Entity,
+    },
 }
 
 fn check_ai_should_run(
@@ -41,7 +60,15 @@ fn check_ai_should_run(
 }
 
 fn ai_choose_action(
-    query: Query<(Entity, &Name, &Actor, Option<&SlimeGirlAi>)>,
+    query: Query<(
+        Entity,
+        &Name,
+        &Actor,
+        &Parent,
+        Option<&SlimeGirlAi>,
+        Option<&Children>,
+    )>,
+    q_organs: Query<(Entity, &Organ)>,
     mut ev: EventReader<AiShouldRunEvent>,
     mut writer: EventWriter<ActionEvent>,
 ) {
@@ -50,42 +77,96 @@ fn ai_choose_action(
     // for now, skip all this, just find the nearest actor and attack
     for ev in ev.read() {
         let slime = query.get(ev.0).unwrap();
-        if slime.3.is_some() {
+        if slime.4.is_some() {
             let mut possible_targets = vec![];
             for target in &query {
-                if slime.0 != target.0 && target.2.health_current > 0 {
-                    possible_targets.push((1, target.0));
+                if slime.0 != target.0
+                    && slime.3.get() == target.3.get()
+                    && target.2.health_current > 0
+                {
+                    possible_targets.push((
+                        50,
+                        ActionEvent::Attack {
+                            attacker: slime.0,
+                            defender: target.0,
+                        },
+                    ));
+                    // make sure the organ exists, and we'll probably want to add a check for vore with each organ
+                    let slime_organ = q_organs
+                        .get(*slime.5.expect("missing organ!").iter().next().unwrap())
+                        .unwrap();
+                    if slime_organ.1.fullness_current + 3 /* size of prey */ <= slime_organ.1.capacity
+                    {
+                        possible_targets.push((
+                            10,
+                            ActionEvent::Devour {
+                                attacker: slime.0,
+                                defender: target.0,
+                                organ: slime_organ.0,
+                            },
+                        ));
+                    }
                 }
             }
 
             // picks target, creates attack event. Unique events for every possible action?
             if let Ok(windex) = WeightedIndex::new(possible_targets.iter().map(|item| item.0)) {
                 let mut rng = thread_rng();
-                let target = possible_targets[windex.sample(&mut rng)].1;
-                writer.send(ActionEvent::Attack {
-                    attacker: slime.0,
-                    defender: target,
-                });
+                let chosen_action = possible_targets.swap_remove(windex.sample(&mut rng)).1;
+                writer.send(chosen_action);
             }
         }
     }
 }
 
-pub fn run_ai(mut reader: EventReader<ActionEvent>, mut query: Query<(Entity, &Name, &mut Actor)>) {
+pub fn run_attack(
+    mut reader: EventReader<ActionEvent>,
+    mut q_actors: Query<(Entity, &Name, &mut Actor)>,
+) {
     for ev in reader.read() {
-        match ev {
-            ActionEvent::Attack { attacker, defender } => {
-                let actors = query.get_many_mut([*attacker, *defender]);
-                if let Ok([attacker, mut target]) = actors {
-                    // check if the slime is still active, if the target is still in reach, if its still alive
-                    // the "is this target valid" check should be the same code both here and above
-                    target.2.health_current -= attacker.2.attack;
-                    println!(
-                        "{} attacks {}, dealing {} damage!",
-                        attacker.1, target.1, attacker.2.attack
-                    );
-                }
+        if let ActionEvent::Attack { attacker, defender } = ev {
+            let actors = q_actors.get_many_mut([*attacker, *defender]);
+            if let Ok([attacker, mut target]) = actors {
+                // check if the slime is still active, if the target is still in reach, if its still alive
+                // the "is this target valid" check should be the same code both here and above
+                target.2.health_current -= attacker.2.attack;
+                println!(
+                    "{} attacks {}, dealing {} damage!",
+                    attacker.1, target.1, attacker.2.attack
+                );
             }
+        }
+    }
+}
+
+// having just one system handle every possible action will make the query params
+// too complicated to reason with, and too hard to expand.
+// since any number of systems can respond to an event, I should instead have one
+// system for each action type.
+fn run_devour(
+    mut reader: EventReader<ActionEvent>,
+    q_organs: Query<(Entity, &Organ)>,
+    q_names: Query<&Name>,
+    mut commands: Commands,
+) {
+    for ev in reader.read() {
+        if let ActionEvent::Devour {
+            attacker,
+            defender,
+            organ,
+        } = ev
+        {
+            // do some calculation based on the stats of the parent
+
+            // sets parent of target to the organ
+            let organ = q_organs
+                .get(*organ)
+                .expect("Organ has vanished before using!");
+            commands.entity(*defender).set_parent(organ.0);
+            let pred = q_names.get(*attacker).expect("Actor should have name!");
+            let prey = q_names.get(*defender).expect("Actor should have name!");
+            let organ_name = q_names.get(organ.0).expect("Organ should have name!");
+            println!("{} devours {} with their {}!", pred, prey, organ_name);
         }
     }
 }

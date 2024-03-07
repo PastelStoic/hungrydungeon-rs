@@ -28,15 +28,18 @@ fn spawn_test(mut commands: Commands) {
             ai::slimegirl::SlimeGirlAi,
         ))
         .with_children(|parent| {
-            parent.spawn(Organ {
-                health_current: 100,
-                health_max: 100,
-                attack: 10,
-                defense: 10,
-                capacity: 100,
-                fullness_current: 0,
-                organ_type: actors::organs::OrganType::Generic,
-            });
+            parent.spawn((
+                Name::new("Slimegirl stomach"),
+                Organ {
+                    health_current: 100,
+                    health_max: 100,
+                    attack: 10,
+                    defense: 10,
+                    capacity: 100,
+                    fullness_current: 0,
+                    organ_type: actors::organs::OrganType::Generic,
+                },
+            ));
         });
         room.spawn((
             Name::new("Slime B"),
