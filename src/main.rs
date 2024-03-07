@@ -27,41 +27,9 @@ fn main() {
         .run();
 }
 
-// todo: spawn in two slimes to attack stuff
 fn spawn_test(mut commands: Commands) {
-    commands.spawn(rooms::GameRoom).with_children(|room| {
-        room.spawn((
-            Name::new("Slimegirl A"),
-            Actor {
-                health_current: 100,
-                health_max: 100,
-                attack: 10,
-                defense: 10,
-            },
-            ai::slimegirl::SlimeGirlAi,
-        ))
-        .with_children(|parent| {
-            parent.spawn((
-                Name::new("Slimegirl stomach"),
-                Organ {
-                    health_current: 100,
-                    health_max: 100,
-                    attack: 10,
-                    defense: 10,
-                    capacity: 100,
-                    fullness_current: 0,
-                    organ_type: actors::organs::OrganType::Generic,
-                },
-            ));
-        });
-        room.spawn((
-            Name::new("Slime B"),
-            Actor {
-                health_current: 100,
-                health_max: 100,
-                attack: 10,
-                defense: 10,
-            },
-        ));
+    commands.spawn(rooms::GameRoom).with_children(|mut room| {
+        slime::spawn(&mut room);
+        slimegirl::spawn(&mut room);
     });
 }

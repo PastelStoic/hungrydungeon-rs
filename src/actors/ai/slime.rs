@@ -16,6 +16,19 @@ impl Plugin for SlimeAiPlugin {
     }
 }
 
+pub fn spawn(parent: &mut ChildBuilder) {
+    parent.spawn((
+        Name::new("Slime B"),
+        SlimeAi,
+        Actor {
+            health_current: 100,
+            health_max: 100,
+            attack: 10,
+            defense: 10,
+        },
+    ));
+}
+
 #[derive(Event)]
 struct AiShouldRunEvent(Entity);
 

@@ -2,7 +2,10 @@ use bevy::prelude::*;
 use rand::{distributions::WeightedIndex, prelude::*};
 
 use crate::{
-    actors::{organs::Organ, Actor},
+    actors::{
+        organs::{Organ, OrganType},
+        Actor,
+    },
     AiTimer,
 };
 
@@ -25,6 +28,34 @@ impl Plugin for SlimeGirlAiPlugin {
                 ),
             );
     }
+}
+
+pub fn spawn(parent: &mut ChildBuilder) {
+    parent
+        .spawn((
+            Name::new("Slimegirl A"),
+            Actor {
+                health_current: 100,
+                health_max: 100,
+                attack: 10,
+                defense: 10,
+            },
+            SlimeGirlAi,
+        ))
+        .with_children(|owner| {
+            owner.spawn((
+                Name::new("Slimegirl stomach"),
+                Organ {
+                    health_current: 100,
+                    health_max: 100,
+                    attack: 10,
+                    defense: 10,
+                    capacity: 100,
+                    fullness_current: 0,
+                    organ_type: OrganType::Generic,
+                },
+            ));
+        });
 }
 
 #[derive(Event)]
