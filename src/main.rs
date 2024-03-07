@@ -18,7 +18,7 @@ fn main() {
 fn spawn_test(mut commands: Commands) {
     commands.spawn(rooms::GameRoom).with_children(|room| {
         room.spawn((
-            Name::new("Slime A"),
+            Name::new("Slimegirl A"),
             Actor {
                 health_current: 100,
                 health_max: 100,
