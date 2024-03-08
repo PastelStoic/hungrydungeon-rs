@@ -1,13 +1,13 @@
 pub mod actors;
+pub mod input_parsing;
 pub mod rooms;
-use async_channel::{Receiver, Sender};
-use std::{io::stdin, thread, time::Duration};
-
 use actors::{ai::*, organs::OrganPlugin};
+use async_channel::{Receiver, Sender};
 use bevy::{
     app::{RunMode, ScheduleRunnerPlugin},
     prelude::*,
 };
+use std::{io::stdin, thread, time::Duration};
 
 const GAME_LOOP_MILIS: u64 = 100;
 
@@ -68,7 +68,7 @@ fn run_game(rx: Receiver<String>, tx: Sender<String>) {
             OrganPlugin,
         ))
         .add_systems(Startup, spawn_test)
-        .add_systems(Update, receive_input)
+        .add_systems(Update, parse_input)
         .run();
 }
 
@@ -79,7 +79,7 @@ fn spawn_test(mut commands: Commands) {
     });
 }
 
-fn receive_input(rs: Res<GameInputReceiver>) {
+fn parse_input(rs: Res<GameInputReceiver>) {
     while let Ok(msg) = rs.0.try_recv() {
         println!("Game received input {msg}");
         // parse message, send appropriate event
