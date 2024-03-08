@@ -4,17 +4,18 @@ pub mod rooms;
 use actors::{ai::*, organs::OrganPlugin};
 use async_channel::{Receiver, Sender};
 use bevy::{
-    app::{RunMode, ScheduleRunnerPlugin},
+    app::{AppExit, RunMode, ScheduleRunnerPlugin},
     prelude::*,
 };
 use std::time::Duration;
 
-use self::actors::player::{react_to_player_input, PlayerActionEvent};
+use self::{actors::player::PlayerActionEvent, input_parsing::parse_player_input};
 
 const GAME_LOOP_MILIS: u64 = 100;
 
 pub enum GameInputType {
     PlayerInput(String),
+    Quit,
 }
 
 #[derive(Resource)]
@@ -48,12 +49,30 @@ fn spawn_test(mut commands: Commands) {
     });
 }
 
-fn receive_input(rs: Res<GameInputReceiver>, mut writer: EventWriter<PlayerActionEvent>) {
-    while let Ok(msg) = rs.0.try_recv() {
+fn receive_input(
+    rcv: Res<GameInputReceiver>,
+    mut writer: EventWriter<PlayerActionEvent>,
+    mut exit: EventWriter<AppExit>,
+) {
+    while let Ok(msg) = rcv.0.try_recv() {
         // parse message, send appropriate event
         // future versions will include the id of the sender, not just the message
         match msg {
-            GameInputType::PlayerInput(msg) => react_to_player_input(msg),
+            GameInputType::PlayerInput(input) => {
+                let parsed = parse_player_input(&input);
+                match parsed {
+                    Ok(ev) => {
+                        writer.send(ev);
+                    }
+                    Err(e) => {
+                        // sends this error back to the bot
+                        println!("{e}");
+                    }
+                }
+            }
+            GameInputType::Quit => {
+                exit.send(AppExit);
+            }
         }
     }
 }

@@ -1,7 +1,9 @@
-use std::io::stdin;
 use async_channel::{Receiver, Sender};
+use std::io::stdin;
 
-pub fn launch_bot(_rx: Receiver<String>, tx: Sender<String>) {
+use crate::game::GameInputType;
+
+pub fn launch_bot(_rx: Receiver<String>, tx: Sender<GameInputType>) {
     tokio::runtime::Builder::new_current_thread()
         .enable_all()
         .build()
@@ -12,10 +14,11 @@ pub fn launch_bot(_rx: Receiver<String>, tx: Sender<String>) {
                 stdin().read_line(&mut s).expect("Invalid string input");
 
                 if s == "exit" {
+                    tx.send(GameInputType::Quit).await.unwrap();
                     break;
                 }
 
-                tx.send(s).await.unwrap();
+                tx.send(GameInputType::PlayerInput(s)).await.unwrap();
             }
         });
 }

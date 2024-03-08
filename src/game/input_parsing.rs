@@ -1,36 +1,36 @@
-pub enum PlayerInputParseResult<'a> {
-    Attack { target: &'a str },
-    Devour { target: &'a str, organ: &'a str },
-    MoveRoom { room: &'a str },
-    Struggle,
-    Error(&'static str),
-    Unknown,
-}
+use super::actors::player::PlayerActionEvent;
 
-pub fn parse_player_input(input: &String) -> PlayerInputParseResult {
+pub fn parse_player_input(input: &String) -> Result<PlayerActionEvent, &'static str> {
     let mut split = input.split_whitespace();
     match split.next() {
         Some(w1) => match w1 {
             "attack" => match split.next() {
-                Some(target) => PlayerInputParseResult::Attack { target },
-                None => PlayerInputParseResult::Error("Missing target for attack"),
+                Some(target) => Ok(PlayerActionEvent::Attack {
+                    target: target.to_string(),
+                }),
+                None => Err("Missing target for attack"),
             },
             "devour" => match split.next() {
                 // the third word is ignored - "devour x with y", "devour x using y", etc are all valid
                 Some(target) => match split.nth(1) {
-                    Some(organ) => PlayerInputParseResult::Devour { target, organ },
-                    None => PlayerInputParseResult::Error("Missing organ for devour"),
+                    Some(organ) => Ok(PlayerActionEvent::Devour {
+                        target: target.to_string(),
+                        organ: organ.to_string(),
+                    }),
+                    None => Err("Missing organ for devour"),
                 },
-                None => PlayerInputParseResult::Error("Missing target for devour"),
+                None => Err("Missing target for devour"),
             },
             "moveto" => match split.next() {
-                Some(room) => PlayerInputParseResult::MoveRoom { room },
-                None => PlayerInputParseResult::Error("Missing room name"),
+                Some(room) => Ok(PlayerActionEvent::MoveRoom {
+                    room: room.to_string(),
+                }),
+                None => Err("Missing room name"),
             },
-            "struggle" => PlayerInputParseResult::Struggle,
-            _ => PlayerInputParseResult::Unknown,
+            "struggle" => Ok(PlayerActionEvent::Struggle),
+            _ => Err("Unknown action"),
         },
-        None => PlayerInputParseResult::Unknown,
+        None => Err("Unknown action"),
     }
 }
 
