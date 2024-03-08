@@ -16,3 +16,12 @@ Idea: since attack actions are pretty standardized, what if I had a generic
 could either rerun the ai decision tree or print an error message.
 Theoretically, it's wasted memory usage if an error message is created that
 never gets seen, but it's probably worth it for simplicity.
+
+Player input is the new struggle, so here's the flow:
+
+1. Input is received by system, creating a PlayerCommandInput event
+2. event is parsed to figure out what the player wants to do
+3. Same system as 2 figures out whether this is even possible (targets exist,
+   are in reach, etc)
+4. If so, new event is created to actually execute the action, same as an AI
+   would have
