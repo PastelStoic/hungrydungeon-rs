@@ -1,21 +1,21 @@
-pub mod actors;
-pub mod input_parsing;
-pub mod rooms;
-use actors::{ai::*, organs::OrganPlugin};
+pub mod game;
+use crate::game::rooms;
 use async_channel::{Receiver, Sender};
 use bevy::{
     app::{RunMode, ScheduleRunnerPlugin},
     prelude::*,
 };
+use game::actors::{ai::*, organs::OrganPlugin};
+use game::{actors, input_parsing};
 use std::{io::stdin, thread, time::Duration};
 
-use crate::input_parsing::parse_game_input;
+use game::input_parsing::parse_game_input;
 
 const GAME_LOOP_MILIS: u64 = 100;
 
 fn main() {
     let (s_game, r_game) = async_channel::unbounded();
-    let (s_bot, r_bot) = async_channel::unbounded();
+    let (s_bot, _r_bot) = async_channel::unbounded();
 
     thread::scope(|s| {
         let game = thread::Builder::new()
