@@ -1,5 +1,5 @@
 pub mod actors;
-pub mod input_parsing;
+pub mod parse_input;
 pub mod rooms;
 use actors::{ai::*, organs::OrganPlugin};
 use async_channel::{Receiver, Sender};
@@ -11,7 +11,7 @@ use std::time::Duration;
 
 use self::{
     actors::player::{Player, PlayerActionEvent},
-    input_parsing::parse_player_input,
+    parse_input::parse_player_input,
 };
 
 const GAME_LOOP_MILIS: u64 = 100;
