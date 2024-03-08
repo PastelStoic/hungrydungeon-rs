@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use rand::{distributions::WeightedIndex, prelude::*};
 
-use crate::{
+use crate::game::{
     actors::{
         organs::{Organ, OrganType},
         Actor,
