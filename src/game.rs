@@ -9,7 +9,10 @@ use bevy::{
 };
 use std::time::Duration;
 
-use self::{actors::player::PlayerActionEvent, input_parsing::parse_player_input};
+use self::{
+    actors::player::{Player, PlayerActionEvent},
+    input_parsing::parse_player_input,
+};
 
 const GAME_LOOP_MILIS: u64 = 100;
 
@@ -51,6 +54,7 @@ fn spawn_test(mut commands: Commands) {
 
 fn receive_input(
     rcv: Res<GameInputReceiver>,
+    q_players: Query<(Entity, &Player)>,
     mut writer: EventWriter<PlayerActionEvent>,
     mut exit: EventWriter<AppExit>,
 ) {
@@ -62,7 +66,10 @@ fn receive_input(
                 let parsed = parse_player_input(&input);
                 match parsed {
                     Ok(ev) => {
-                        writer.send(ev);
+                        writer.send(PlayerActionEvent {
+                            player: q_players.iter().find(|p| p.1 .0 == 0).unwrap().0,
+                            event_type: ev,
+                        });
                     }
                     Err(e) => {
                         // sends this error back to the bot

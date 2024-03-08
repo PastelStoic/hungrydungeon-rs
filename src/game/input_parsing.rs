@@ -1,11 +1,11 @@
-use super::actors::player::PlayerActionEvent;
+use super::actors::player::PlayerActionEventType;
 
-pub fn parse_player_input(input: &String) -> Result<PlayerActionEvent, &'static str> {
+pub fn parse_player_input(input: &String) -> Result<PlayerActionEventType, &'static str> {
     let mut split = input.split_whitespace();
     match split.next() {
         Some(w1) => match w1 {
             "attack" => match split.next() {
-                Some(target) => Ok(PlayerActionEvent::Attack {
+                Some(target) => Ok(PlayerActionEventType::Attack {
                     target: target.to_string(),
                 }),
                 None => Err("Missing target for attack"),
@@ -13,7 +13,7 @@ pub fn parse_player_input(input: &String) -> Result<PlayerActionEvent, &'static 
             "devour" => match split.next() {
                 // the third word is ignored - "devour x with y", "devour x using y", etc are all valid
                 Some(target) => match split.nth(1) {
-                    Some(organ) => Ok(PlayerActionEvent::Devour {
+                    Some(organ) => Ok(PlayerActionEventType::Devour {
                         target: target.to_string(),
                         organ: organ.to_string(),
                     }),
@@ -22,12 +22,12 @@ pub fn parse_player_input(input: &String) -> Result<PlayerActionEvent, &'static 
                 None => Err("Missing target for devour"),
             },
             "moveto" => match split.next() {
-                Some(room) => Ok(PlayerActionEvent::MoveRoom {
+                Some(room) => Ok(PlayerActionEventType::MoveRoom {
                     room: room.to_string(),
                 }),
                 None => Err("Missing room name"),
             },
-            "struggle" => Ok(PlayerActionEvent::Struggle),
+            "struggle" => Ok(PlayerActionEventType::Struggle),
             _ => Err("Unknown action"),
         },
         None => Err("Unknown action"),
