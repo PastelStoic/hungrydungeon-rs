@@ -1,8 +1,7 @@
-
 use std::io::stdin;
 use async_channel::{Receiver, Sender};
 
-pub fn launch_bot(rx: Receiver<String>, tx: Sender<String>) {
+pub fn launch_bot(_rx: Receiver<String>, tx: Sender<String>) {
     tokio::runtime::Builder::new_current_thread()
         .enable_all()
         .build()
