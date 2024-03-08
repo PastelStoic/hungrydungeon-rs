@@ -9,6 +9,8 @@ use bevy::{
 };
 use std::{io::stdin, thread, time::Duration};
 
+use crate::input_parsing::parse_game_input;
+
 const GAME_LOOP_MILIS: u64 = 100;
 
 fn main() {
@@ -68,7 +70,7 @@ fn run_game(rx: Receiver<String>, tx: Sender<String>) {
             OrganPlugin,
         ))
         .add_systems(Startup, spawn_test)
-        .add_systems(Update, parse_input)
+        .add_systems(Update, receive_input)
         .run();
 }
 
@@ -79,10 +81,24 @@ fn spawn_test(mut commands: Commands) {
     });
 }
 
-fn parse_input(rs: Res<GameInputReceiver>) {
+fn receive_input(rs: Res<GameInputReceiver>) {
     while let Ok(msg) = rs.0.try_recv() {
-        println!("Game received input {msg}");
         // parse message, send appropriate event
         // future versions will include the id of the sender, not just the message
+        let parsed = parse_game_input(&msg);
+        match parsed {
+            input_parsing::GameInputParseResult::Attack { target } => {
+                println!("Received attack target {target}")
+            }
+            input_parsing::GameInputParseResult::Devour { target, organ } => {
+                println!("Received devour {target} with organ {organ}")
+            }
+            input_parsing::GameInputParseResult::MoveRoom { room } => {
+                println!("Received move to room {room}")
+            }
+            input_parsing::GameInputParseResult::Struggle => println!("Received struggle"),
+            input_parsing::GameInputParseResult::Error(e) => println!("Parsing error: {e}"),
+            input_parsing::GameInputParseResult::Unknown => println!("Received unknown input"),
+        }
     }
 }
