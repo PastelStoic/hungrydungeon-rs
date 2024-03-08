@@ -9,17 +9,21 @@ use bevy::{
 };
 use std::time::Duration;
 
-use input_parsing::parse_game_input;
+use self::actors::player::{react_to_player_input, PlayerActionEvent};
 
 const GAME_LOOP_MILIS: u64 = 100;
 
+pub enum GameInputType {
+    PlayerInput(String),
+}
+
 #[derive(Resource)]
-struct GameInputReceiver(Receiver<String>);
+struct GameInputReceiver(Receiver<GameInputType>);
 
 #[derive(Resource)]
 struct GameOutputSender(Sender<String>);
 
-pub fn launch_game(rx: Receiver<String>, tx: Sender<String>) {
+pub fn launch_game(rx: Receiver<GameInputType>, tx: Sender<String>) {
     App::new()
         .insert_resource(GameInputReceiver(rx))
         .insert_resource(GameOutputSender(tx))
@@ -44,24 +48,12 @@ fn spawn_test(mut commands: Commands) {
     });
 }
 
-fn receive_input(rs: Res<GameInputReceiver>) {
+fn receive_input(rs: Res<GameInputReceiver>, mut writer: EventWriter<PlayerActionEvent>) {
     while let Ok(msg) = rs.0.try_recv() {
         // parse message, send appropriate event
         // future versions will include the id of the sender, not just the message
-        let parsed = parse_game_input(&msg);
-        match parsed {
-            input_parsing::GameInputParseResult::Attack { target } => {
-                println!("Received attack target {target}")
-            }
-            input_parsing::GameInputParseResult::Devour { target, organ } => {
-                println!("Received devour {target} with organ {organ}")
-            }
-            input_parsing::GameInputParseResult::MoveRoom { room } => {
-                println!("Received move to room {room}")
-            }
-            input_parsing::GameInputParseResult::Struggle => println!("Received struggle"),
-            input_parsing::GameInputParseResult::Error(e) => println!("Parsing error: {e}"),
-            input_parsing::GameInputParseResult::Unknown => println!("Received unknown input"),
+        match msg {
+            GameInputType::PlayerInput(msg) => react_to_player_input(msg),
         }
     }
 }

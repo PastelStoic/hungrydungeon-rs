@@ -1,5 +1,6 @@
 pub mod organs;
 pub mod ai;
+pub mod player;
 use bevy::prelude::Component;
 
 #[derive(Component)]
