@@ -59,17 +59,23 @@ fn receive_input(
     mut exit: EventWriter<AppExit>,
 ) {
     while let Ok(msg) = rcv.0.try_recv() {
-        // parse message, send appropriate event
-        // future versions will include the id of the sender, not just the message
         match msg {
             GameInputType::PlayerInput(input) => {
                 let parsed = parse_player_input(&input);
                 match parsed {
                     Ok(ev) => {
-                        writer.send(PlayerActionEvent {
-                            player: q_players.iter().find(|p| p.1 .0 == 0).unwrap().0,
-                            event_type: ev,
-                        });
+                        let player = q_players.iter().find(|p| p.1 .0 == 0);
+                        match player {
+                            Some(player) => {
+                                writer.send(PlayerActionEvent {
+                                    player: player.0,
+                                    event_type: ev,
+                                });
+                            }
+                            None => {
+                                println!("No player found!");
+                            }
+                        }
                     }
                     Err(e) => {
                         // sends this error back to the bot
