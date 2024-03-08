@@ -1,6 +1,7 @@
 pub mod actors;
 pub mod rooms;
-use std::{io::stdin, sync::mpsc::{self, Receiver}, thread, time::Duration};
+use async_channel::{Receiver, Sender};
+use std::{io::stdin, thread, time::Duration};
 
 use actors::{ai::*, organs::OrganPlugin};
 use bevy::{
@@ -8,39 +9,66 @@ use bevy::{
     prelude::*,
 };
 
+const GAME_LOOP_MILIS: u64 = 100;
+
 fn main() {
-    let (tx, rx) = mpsc::channel();
+    let (s_game, r_game) = async_channel::unbounded();
+    let (s_bot, r_bot) = async_channel::unbounded();
 
-    let game = thread::spawn(|| run_game());
+    thread::scope(|s| {
+        let game = thread::Builder::new()
+            .name("Bevy".to_string())
+            .spawn_scoped(s, || run_game(r_game, s_bot))
+            .unwrap();
 
-    loop {
-        let mut s = String::new();
-        stdin().read_line(&mut s).expect("Invalid string input");
-        println!("result was s");
+        let console = thread::Builder::new()
+            .name("console".to_string())
+            .spawn_scoped(s, || {
+                tokio::runtime::Builder::new_current_thread()
+                    .enable_all()
+                    .build()
+                    .unwrap()
+                    .block_on(async {
+                        loop {
+                            let mut s = String::new();
+                            stdin().read_line(&mut s).expect("Invalid string input");
 
-        if s == "exit" {
-            break;
-        }
-    }
+                            if s == "exit" {
+                                break;
+                            }
 
-    game.join().unwrap();
+                            s_game.send(s).await.unwrap();
+                        }
+                    });
+            })
+            .unwrap();
+
+        game.join().unwrap();
+        console.join().unwrap();
+    });
 }
 
+#[derive(Resource)]
 struct GameInputReceiver(Receiver<String>);
 
-fn run_game(rx: Receiver<String>) {
+#[derive(Resource)]
+struct GameOutputSender(Sender<String>);
+
+fn run_game(rx: Receiver<String>, tx: Sender<String>) {
     App::new()
+        .insert_resource(GameInputReceiver(rx))
+        .insert_resource(GameOutputSender(tx))
         .add_plugins((
             MinimalPlugins.set(ScheduleRunnerPlugin {
                 run_mode: RunMode::Loop {
-                    wait: Some(Duration::from_millis(100)),
+                    wait: Some(Duration::from_millis(GAME_LOOP_MILIS)),
                 },
             }),
             AiPlugin,
             OrganPlugin,
         ))
         .add_systems(Startup, spawn_test)
-        .insert_non_send_resource(GameInputReceiver(rx))
+        .add_systems(Update, receive_input)
         .run();
 }
 
@@ -49,4 +77,12 @@ fn spawn_test(mut commands: Commands) {
         slime::spawn(&mut room);
         slimegirl::spawn(&mut room);
     });
+}
+
+fn receive_input(rs: Res<GameInputReceiver>) {
+    while let Ok(msg) = rs.0.try_recv() {
+        println!("Game received input {msg}");
+        // parse message, send appropriate event
+        // future versions will include the id of the sender, not just the message
+    }
 }
