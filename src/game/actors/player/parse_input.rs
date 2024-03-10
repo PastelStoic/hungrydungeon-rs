@@ -1,4 +1,9 @@
-use super::actors::player::PlayerActionEventType;
+pub enum PlayerActionEventType {
+    Attack { target: String },
+    Devour { target: String, organ: String },
+    MoveRoom { room: String },
+    Struggle,
+}
 
 pub fn parse_player_input(input: &String) -> Result<PlayerActionEventType, &'static str> {
     let mut split = input.split_whitespace();

@@ -1,7 +1,7 @@
 use async_channel::{Receiver, Sender};
 use std::io::stdin;
 
-use crate::game::GameInputType;
+use crate::game::{actors::player::PlayerInputStringEvent, GameInputType};
 
 pub fn launch_bot(_rx: Receiver<String>, tx: Sender<GameInputType>) {
     tokio::runtime::Builder::new_current_thread()
@@ -18,7 +18,7 @@ pub fn launch_bot(_rx: Receiver<String>, tx: Sender<GameInputType>) {
                     break;
                 }
 
-                tx.send(GameInputType::PlayerInput(s)).await.unwrap();
+                tx.send(GameInputType::PlayerInput(PlayerInputStringEvent(5, s))).await.unwrap();
             }
         });
 }

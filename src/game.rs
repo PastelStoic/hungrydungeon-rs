@@ -1,5 +1,4 @@
 pub mod actors;
-pub mod parse_input;
 pub mod rooms;
 use actors::{ai::*, organs::OrganPlugin};
 use async_channel::{Receiver, Sender};
@@ -9,15 +8,12 @@ use bevy::{
 };
 use std::time::Duration;
 
-use self::{
-    actors::player::{Player, PlayerActionEvent},
-    parse_input::parse_player_input,
-};
+use self::actors::player::PlayerInputStringEvent;
 
 const GAME_LOOP_MILIS: u64 = 100;
 
 pub enum GameInputType {
-    PlayerInput(String),
+    PlayerInput(PlayerInputStringEvent),
     Quit,
 }
 
@@ -54,34 +50,13 @@ fn spawn_test(mut commands: Commands) {
 
 fn receive_input(
     rcv: Res<GameInputReceiver>,
-    q_players: Query<(Entity, &Player)>,
-    mut writer: EventWriter<PlayerActionEvent>,
+    mut writer: EventWriter<PlayerInputStringEvent>,
     mut exit: EventWriter<AppExit>,
 ) {
     while let Ok(msg) = rcv.0.try_recv() {
         match msg {
             GameInputType::PlayerInput(input) => {
-                let parsed = parse_player_input(&input);
-                match parsed {
-                    Ok(ev) => {
-                        let player = q_players.iter().find(|p| p.1 .0 == 0);
-                        match player {
-                            Some(player) => {
-                                writer.send(PlayerActionEvent {
-                                    player: player.0,
-                                    event_type: ev,
-                                });
-                            }
-                            None => {
-                                println!("No player found!");
-                            }
-                        }
-                    }
-                    Err(e) => {
-                        // sends this error back to the bot
-                        println!("{e}");
-                    }
-                }
+                writer.send(input);
             }
             GameInputType::Quit => {
                 exit.send(AppExit);
