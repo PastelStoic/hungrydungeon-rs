@@ -10,7 +10,20 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<PlayerInputStringEvent>()
-            .add_systems(Update, process_event);
+            .add_event::<PlayerAttackEvent>()
+            .add_event::<PlayerDevourEvent>()
+            .add_event::<PlayerMoveRoomEvent>()
+            .add_event::<PlayerStruggleEvent>()
+            .add_systems(
+                Update,
+                (
+                    process_event,
+                    player_attack,
+                    player_devour,
+                    player_move_room,
+                    player_struggle,
+                ),
+            );
     }
 }
 
@@ -55,6 +68,11 @@ fn process_event(
     mut w_err: EventWriter<SendMessageToBotEvent>,
 ) {
     for ev in reader.read() {
+        // this is a three-step process.
+        // First, the string input is parsed to figure out what the player wants to do.
+        // Second, the parsed event is checked to make sure the given names are valid entities.
+        // Third, the event is passed to individual systems, which check whether the
+        // named entities are what they're supposed to be and whether the action is possible.
         match map_input_to_event(ev.0, &ev.1, &q_actors, &q_names) {
             Ok(parseres) => match parseres {
                 ParsedPlayerEvent::Attack(e) => {
@@ -77,3 +95,11 @@ fn process_event(
         }
     }
 }
+
+fn player_attack() {}
+
+fn player_devour() {}
+
+fn player_move_room() {}
+
+fn player_struggle() {}

@@ -1,5 +1,3 @@
-use crate::game::SendMessageToBotEvent;
-
 use super::{
     parse_input::{parse_player_input, PlayerActionEventType},
     Player, PlayerAttackEvent, PlayerDevourEvent, PlayerMoveRoomEvent, PlayerStruggleEvent,
