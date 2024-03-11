@@ -17,6 +17,11 @@ pub enum GameInputType {
     Quit,
 }
 
+#[derive(Event)]
+pub struct SendMessageToBotEvent {
+    message: String,
+}
+
 #[derive(Resource)]
 struct GameInputReceiver(Receiver<GameInputType>);
 
@@ -27,6 +32,7 @@ pub fn launch_game(rx: Receiver<GameInputType>, tx: Sender<String>) {
     App::new()
         .insert_resource(GameInputReceiver(rx))
         .insert_resource(GameOutputSender(tx))
+        .add_event::<SendMessageToBotEvent>()
         .add_plugins((
             MinimalPlugins.set(ScheduleRunnerPlugin {
                 run_mode: RunMode::Loop {
@@ -37,7 +43,7 @@ pub fn launch_game(rx: Receiver<GameInputType>, tx: Sender<String>) {
             OrganPlugin,
         ))
         .add_systems(Startup, spawn_test)
-        .add_systems(Update, receive_input)
+        .add_systems(Update, (receive_input, send_output))
         .run();
 }
 
@@ -51,7 +57,6 @@ fn spawn_test(mut commands: Commands) {
 /// Receives input from other threads and passes them to whichever system is meant to handle them.
 fn receive_input(
     rcv: Res<GameInputReceiver>,
-    _q_players: Query<(Entity, &Player)>,
     mut writer: EventWriter<PlayerInputStringEvent>,
     mut exit: EventWriter<AppExit>,
 ) {
@@ -64,5 +69,13 @@ fn receive_input(
                 exit.send(AppExit);
             }
         }
+    }
+}
+
+fn send_output(snd: Res<GameOutputSender>, mut reader: EventReader<SendMessageToBotEvent>) {
+    for ev in reader.read() {
+        snd.0
+            .try_send(ev.message.clone())
+            .expect("Sending message to bot failed!");
     }
 }

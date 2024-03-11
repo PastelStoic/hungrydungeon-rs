@@ -1,7 +1,7 @@
 pub enum PlayerActionEventType {
-    Attack { target: String },
-    Devour { target: String, organ: String },
-    MoveRoom { room: String },
+    Attack { target_name: String },
+    Devour { target_name: String, organ_name: String },
+    MoveRoom { room_name: String },
     Struggle,
 }
 
@@ -11,7 +11,7 @@ pub fn parse_player_input(input: &String) -> Result<PlayerActionEventType, &'sta
         Some(w1) => match w1 {
             "attack" => match split.next() {
                 Some(target) => Ok(PlayerActionEventType::Attack {
-                    target: target.to_string(),
+                    target_name: target.to_string(),
                 }),
                 None => Err("Missing target for attack"),
             },
@@ -19,8 +19,8 @@ pub fn parse_player_input(input: &String) -> Result<PlayerActionEventType, &'sta
                 // the third word is ignored - "devour x with y", "devour x using y", etc are all valid
                 Some(target) => match split.nth(1) {
                     Some(organ) => Ok(PlayerActionEventType::Devour {
-                        target: target.to_string(),
-                        organ: organ.to_string(),
+                        target_name: target.to_string(),
+                        organ_name: organ.to_string(),
                     }),
                     None => Err("Missing organ for devour"),
                 },
@@ -28,7 +28,7 @@ pub fn parse_player_input(input: &String) -> Result<PlayerActionEventType, &'sta
             },
             "moveto" => match split.next() {
                 Some(room) => Ok(PlayerActionEventType::MoveRoom {
-                    room: room.to_string(),
+                    room_name: room.to_string(),
                 }),
                 None => Err("Missing room name"),
             },
