@@ -8,12 +8,12 @@ use bevy::{
 };
 use std::time::Duration;
 
-use self::actors::player::PlayerInputStringEvent;
+use self::actors::player::{Player, PlayerInputStringEvent};
 
 const GAME_LOOP_MILIS: u64 = 100;
 
 pub enum GameInputType {
-    PlayerInput(PlayerInputStringEvent),
+    PlayerInput(u64, String),
     Quit,
 }
 
@@ -48,15 +48,17 @@ fn spawn_test(mut commands: Commands) {
     });
 }
 
+/// Receives input from other threads and passes them to whichever system is meant to handle them.
 fn receive_input(
     rcv: Res<GameInputReceiver>,
+    q_players: Query<(Entity, &Player)>,
     mut writer: EventWriter<PlayerInputStringEvent>,
     mut exit: EventWriter<AppExit>,
 ) {
     while let Ok(msg) = rcv.0.try_recv() {
         match msg {
-            GameInputType::PlayerInput(input) => {
-                writer.send(input);
+            GameInputType::PlayerInput(id, input) => {
+                writer.send(PlayerInputStringEvent(id, input));
             }
             GameInputType::Quit => {
                 exit.send(AppExit);

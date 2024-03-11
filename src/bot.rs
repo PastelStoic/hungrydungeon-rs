@@ -18,7 +18,7 @@ pub fn launch_bot(_rx: Receiver<String>, tx: Sender<GameInputType>) {
                     break;
                 }
 
-                tx.send(GameInputType::PlayerInput(PlayerInputStringEvent(5, s))).await.unwrap();
+                tx.send(GameInputType::PlayerInput(5, s)).await.unwrap();
             }
         });
 }
