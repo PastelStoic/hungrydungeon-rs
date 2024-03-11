@@ -24,7 +24,7 @@ fn process_event(
 ) {
     for ev in reader.read() {
         let player = q_actors.iter().find(|p| p.1 .0 == ev.0);
-        let Some(player) = player else {
+        let Some(_player) = player else {
             // log error
             continue;
         };

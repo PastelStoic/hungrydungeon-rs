@@ -51,7 +51,7 @@ fn spawn_test(mut commands: Commands) {
 /// Receives input from other threads and passes them to whichever system is meant to handle them.
 fn receive_input(
     rcv: Res<GameInputReceiver>,
-    q_players: Query<(Entity, &Player)>,
+    _q_players: Query<(Entity, &Player)>,
     mut writer: EventWriter<PlayerInputStringEvent>,
     mut exit: EventWriter<AppExit>,
 ) {
