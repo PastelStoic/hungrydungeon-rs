@@ -148,13 +148,13 @@ fn player_devour(
 }
 
 fn player_move_room(mut reader: EventReader<PlayerMoveRoomEvent>) {
-    for ev in reader.read() {
+    for _ev in reader.read() {
         println!("Move event");
     }
 }
 
 fn player_struggle(mut reader: EventReader<PlayerStruggleEvent>) {
-    for ev in reader.read() {
+    for _ev in reader.read() {
         println!("Struggle event");
     }
 }

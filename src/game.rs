@@ -86,7 +86,7 @@ fn receive_input(
     }
 }
 
-fn send_output(snd: Res<GameOutputSender>, mut reader: EventReader<SendMessageToBotEvent>) {
+fn send_output(_snd: Res<GameOutputSender>, mut reader: EventReader<SendMessageToBotEvent>) {
     for ev in reader.read() {
         println!("{}", ev.message);
         // snd.0
