@@ -8,7 +8,7 @@ use bevy::{
 };
 use std::time::Duration;
 
-use self::actors::player::PlayerInputStringEvent;
+use self::actors::player::{PlayerInputStringEvent, PlayerPlugin};
 
 const GAME_LOOP_MILIS: u64 = 100;
 
@@ -41,6 +41,7 @@ pub fn launch_game(rx: Receiver<GameInputType>, tx: Sender<String>) {
             }),
             AiPlugin,
             OrganPlugin,
+            PlayerPlugin,
         ))
         .add_systems(Startup, spawn_test)
         .add_systems(Update, (receive_input, send_output))

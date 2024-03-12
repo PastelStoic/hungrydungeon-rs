@@ -9,6 +9,8 @@ pub enum ParsedPlayerEvent {
     Devour(PlayerDevourEvent),
     Move(PlayerMoveRoomEvent),
     Struggle(PlayerStruggleEvent),
+    // other possible events: login, logout, useability, 
+    // move prey between organs, spit out prey, interact,
 }
 
 pub fn map_input_to_event(
@@ -33,7 +35,7 @@ pub fn map_input_to_event(
                         player,
                         target: target.0,
                     })),
-                    None => Err(format!("Could not find target named {target_name}")),
+                    None => Err(format!("Could not find entity named {target_name}")),
                 }
             }
             PlayerActionEventType::Devour {
@@ -43,11 +45,11 @@ pub fn map_input_to_event(
                 let target = q_names.iter().find(|e| e.1.as_str() == target_name);
                 let organ = q_names.iter().find(|e| e.1.as_str() == organ_name);
                 let Some(target) = target else {
-                    return Err(format!("Could not find target named {target_name}"));
+                    return Err(format!("Could not find entity named {target_name}"));
                 };
 
                 let Some(organ) = organ else {
-                    return Err(format!("Could not find target named {organ_name}"));
+                    return Err(format!("Could not find entity named {organ_name}"));
                 };
 
                 Ok(ParsedPlayerEvent::Devour(PlayerDevourEvent {
@@ -63,7 +65,7 @@ pub fn map_input_to_event(
                         player,
                         room: room.0,
                     })),
-                    None => Err(format!("No room found called {room_name}")),
+                    None => Err(format!("No entity found called {room_name}")),
                 }
             }
             PlayerActionEventType::Struggle => {

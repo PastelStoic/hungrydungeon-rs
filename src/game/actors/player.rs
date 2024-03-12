@@ -96,10 +96,26 @@ fn process_event(
     }
 }
 
-fn player_attack() {}
+fn player_attack(mut reader: EventReader<PlayerAttackEvent>) {
+    for ev in reader.read() {
+        println!("Attack event");
+    }
+}
 
-fn player_devour() {}
+fn player_devour(mut reader: EventReader<PlayerDevourEvent>) {
+    for ev in reader.read() {
+        println!("Devour event");
+    }
+}
 
-fn player_move_room() {}
+fn player_move_room(mut reader: EventReader<PlayerMoveRoomEvent>) {
+    for ev in reader.read() {
+        println!("Move event");
+    }
+}
 
-fn player_struggle() {}
+fn player_struggle(mut reader: EventReader<PlayerStruggleEvent>) {
+    for ev in reader.read() {
+        println!("Struggle event");
+    }
+}
