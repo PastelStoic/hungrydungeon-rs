@@ -29,3 +29,12 @@ Player input is the new struggle, so here's the flow:
 The input parser needs support for names that have multiple words in them.
 
 Rather than using events, I should replace most actions with oneshot systems.
+Rather than a specific ai struct for each ai and player, I can have a
+Behavior(SystemId) component that holds the system id that runs the ai.
+
+Problem: The systemId is created once, at runtime. How do I make sure all
+entities of a given type spawn with that speicific entity ID?
+
+One option is to just re-register the system for each spawned entity. Slow?
+Maybe, but also maybe not - it's what's easy, so how about I just do that and
+then see if it's an issue.

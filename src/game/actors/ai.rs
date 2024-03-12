@@ -1,7 +1,7 @@
 pub mod slime;
 pub mod slimegirl;
 
-use bevy::prelude::*;
+use bevy::{ecs::system::SystemId, prelude::*};
 
 pub struct AiPlugin;
 
@@ -17,6 +17,14 @@ impl Plugin for AiPlugin {
 #[derive(Resource)]
 pub struct AiTimer(Timer);
 
-fn tick_ai_timer(mut aitimer: ResMut<AiTimer>, time: Res<Time>) {
+#[derive(Component)]
+pub struct AiBehavior(SystemId);
+
+fn tick_ai_timer(mut aitimer: ResMut<AiTimer>, time: Res<Time>, query: Query<(Entity, &AiBehavior)>, mut commands: Commands) {
     aitimer.0.tick(time.delta());
+    if aitimer.0.finished() {
+        for ai in &query {
+            commands.run_system_with_input(ai.0.1, ai.1);
+        }
+    }
 }

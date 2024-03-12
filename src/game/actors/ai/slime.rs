@@ -1,25 +1,15 @@
 use bevy::prelude::*;
 use rand::{distributions::WeightedIndex, prelude::*};
 
-use crate::game::{actors::Actor, AiTimer};
+use crate::game::actors::Actor;
 
-#[derive(Component)]
-pub struct SlimeAi;
+use super::AiBehavior;
 
-pub struct SlimeAiPlugin;
-
-impl Plugin for SlimeAiPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_event::<AiShouldRunEvent>()
-            .add_event::<ActionEvent>()
-            .add_systems(Update, (check_ai_should_run, ai_choose_action, run_ai));
-    }
-}
-
-pub fn spawn(parent: &mut ChildBuilder) {
+pub fn spawn(parent: &mut ChildBuilder, world: &mut World) {
+    let ai = world.register_system(slime_ai);
     parent.spawn((
         Name::new("Slime"),
-        SlimeAi,
+        AiBehavior(ai),
         Actor {
             health_current: 100,
             health_max: 100,
@@ -29,76 +19,38 @@ pub fn spawn(parent: &mut ChildBuilder) {
     ));
 }
 
-#[derive(Event)]
-struct AiShouldRunEvent(Entity);
 
-#[derive(Event)]
-pub enum ActionEvent {
-    Attack { attacker: Entity, defender: Entity },
+// this runs once per slime, on the slime
+fn slime_ai(In(entity): In<Entity>, mut query: Query<(Entity, &Name, &mut Actor)>) {
+    let slime = query.get(entity).unwrap();
+    let mut possible_targets = vec![];
+    for target in &query {
+        if slime.0 != target.0 && target.2.health_current > 0 {
+            possible_targets.push((1, target.0));
+        }
+    }
+
+    // picks target, creates attack event. Unique events for every possible action?
+    if let Ok(windex) = WeightedIndex::new(possible_targets.iter().map(|item| item.0)) {
+        let mut rng = thread_rng();
+        let target = possible_targets[windex.sample(&mut rng)].1;
+        run_attack(slime.0, target, &mut query)
+    }
 }
 
-fn check_ai_should_run(
-    mut ev: EventWriter<AiShouldRunEvent>,
-    query: Query<(Entity, &Actor), With<SlimeAi>>,
-    aitimer: Res<AiTimer>,
+pub fn run_attack(
+    attacker: Entity,
+    defender: Entity,
+    mut query: &mut Query<(Entity, &Name, &mut Actor)>,
 ) {
-    // early return if it's not time yet
-    if !aitimer.0.finished() {
-        return;
-    }
-    for thing in &query {
-        if thing.1.health_current > 0 {
-            ev.send(AiShouldRunEvent(thing.0));
-        }
-    }
-}
-
-fn ai_choose_action(
-    query: Query<(Entity, &Name, &Actor, Option<&SlimeAi>)>,
-    mut ev: EventReader<AiShouldRunEvent>,
-    mut writer: EventWriter<ActionEvent>,
-) {
-    // has a list of possible actions based on AI type
-    // each of these actions is calculated, given a weight
-    // for now, skip all this, just find the nearest actor and attack
-    for ev in ev.read() {
-        let slime = query.get(ev.0).unwrap();
-        if slime.3.is_some() {
-            let mut possible_targets = vec![];
-            for target in &query {
-                if slime.0 != target.0 && target.2.health_current > 0 {
-                    possible_targets.push((1, target.0));
-                }
-            }
-
-            // picks target, creates attack event. Unique events for every possible action?
-            if let Ok(windex) = WeightedIndex::new(possible_targets.iter().map(|item| item.0)) {
-                let mut rng = thread_rng();
-                let target = possible_targets[windex.sample(&mut rng)].1;
-                writer.send(ActionEvent::Attack {
-                    attacker: slime.0,
-                    defender: target,
-                });
-            }
-        }
-    }
-}
-
-pub fn run_ai(mut reader: EventReader<ActionEvent>, mut query: Query<(&Name, &mut Actor)>) {
-    for ev in reader.read() {
-        match ev {
-            ActionEvent::Attack { attacker, defender } => {
-                let actors = query.get_many_mut([*attacker, *defender]);
-                if let Ok([attacker, mut target]) = actors {
-                    // check if the slime is still active, if the target is still in reach, if its still alive
-                    // the "is this target valid" check should be the same code both here and above
-                    target.1.health_current -= attacker.1.attack;
-                    println!(
-                        "{} attacks {}, dealing {} damage!",
-                        attacker.0, target.0, attacker.1.attack
-                    );
-                }
-            }
-        }
+    let actors = query.get_many_mut([attacker, defender]);
+    if let Ok([attacker, mut target]) = actors {
+        // check if the slime is still active, if the target is still in reach, if its still alive
+        // the "is this target valid" check should be the same code both here and above
+        target.1.health_current -= attacker.1.attack;
+        println!(
+            "{} attacks {}, dealing {} damage!",
+            attacker.0, target.0, attacker.1.attack
+        );
     }
 }
