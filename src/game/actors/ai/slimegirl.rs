@@ -33,7 +33,7 @@ impl Plugin for SlimeGirlAiPlugin {
 pub fn spawn(parent: &mut ChildBuilder) {
     parent
         .spawn((
-            Name::new("Slimegirl A"),
+            Name::new("Slimegirl"),
             Actor {
                 health_current: 100,
                 health_max: 100,

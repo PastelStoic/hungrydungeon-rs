@@ -18,7 +18,7 @@ impl Plugin for SlimeAiPlugin {
 
 pub fn spawn(parent: &mut ChildBuilder) {
     parent.spawn((
-        Name::new("Slime B"),
+        Name::new("Slime"),
         SlimeAi,
         Actor {
             health_current: 100,

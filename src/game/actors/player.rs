@@ -3,7 +3,9 @@ mod process_input;
 use bevy::prelude::*;
 use process_input::{map_input_to_event, ParsedPlayerEvent};
 
-use crate::game::SendMessageToBotEvent;
+use crate::game::{rooms::GameRoom, SendMessageToBotEvent};
+
+use super::{organs::Organ, Actor};
 
 pub struct PlayerPlugin;
 
@@ -59,7 +61,9 @@ pub struct Player(pub u64);
 
 fn process_event(
     q_actors: Query<(Entity, &Player)>,
-    q_names: Query<(Entity, &Name)>,
+    q_actor_names: Query<(Entity, &Name), With<Actor>>,
+    q_organ_names: Query<(Entity, &Name), With<Organ>>,
+    q_room_names: Query<(Entity, &Name), With<GameRoom>>,
     mut reader: EventReader<PlayerInputStringEvent>,
     mut w_attack: EventWriter<PlayerAttackEvent>,
     mut w_devour: EventWriter<PlayerDevourEvent>,
@@ -73,7 +77,14 @@ fn process_event(
         // Second, the parsed event is checked to make sure the given names are valid entities.
         // Third, the event is passed to individual systems, which check whether the
         // named entities are what they're supposed to be and whether the action is possible.
-        match map_input_to_event(ev.0, &ev.1, &q_actors, &q_names) {
+        match map_input_to_event(
+            ev.0,
+            &ev.1,
+            &q_actors,
+            &q_actor_names,
+            &q_organ_names,
+            &q_room_names,
+        ) {
             Ok(parseres) => match parseres {
                 ParsedPlayerEvent::Attack(e) => {
                     w_attack.send(e);

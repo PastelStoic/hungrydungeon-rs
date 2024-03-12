@@ -8,7 +8,10 @@ use bevy::{
 };
 use std::time::Duration;
 
-use self::actors::player::{PlayerInputStringEvent, PlayerPlugin};
+use self::actors::{
+    player::{Player, PlayerInputStringEvent, PlayerPlugin},
+    Actor,
+};
 
 const GAME_LOOP_MILIS: u64 = 100;
 
@@ -52,6 +55,16 @@ fn spawn_test(mut commands: Commands) {
     commands.spawn(rooms::GameRoom).with_children(|mut room| {
         slime::spawn(&mut room);
         slimegirl::spawn(&mut room);
+        room.spawn((
+            Name::new("Player"),
+            Player(5),
+            Actor {
+                health_current: 100,
+                health_max: 100,
+                attack: 10,
+                defense: 10,
+            },
+        ));
     });
 }
 
@@ -75,8 +88,9 @@ fn receive_input(
 
 fn send_output(snd: Res<GameOutputSender>, mut reader: EventReader<SendMessageToBotEvent>) {
     for ev in reader.read() {
-        snd.0
-            .try_send(ev.message.clone())
-            .expect("Sending message to bot failed!");
+        println!("{}", ev.message);
+        // snd.0
+        //     .try_send(ev.message.clone())
+        //     .expect("Sending message to bot failed!");
     }
 }
