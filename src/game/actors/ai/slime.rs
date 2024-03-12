@@ -84,7 +84,7 @@ fn ai_choose_action(
     }
 }
 
-pub fn run_ai(mut reader: EventReader<ActionEvent>, mut query: Query<(Entity, &Name, &mut Actor)>) {
+pub fn run_ai(mut reader: EventReader<ActionEvent>, mut query: Query<(&Name, &mut Actor)>) {
     for ev in reader.read() {
         match ev {
             ActionEvent::Attack { attacker, defender } => {
@@ -92,10 +92,10 @@ pub fn run_ai(mut reader: EventReader<ActionEvent>, mut query: Query<(Entity, &N
                 if let Ok([attacker, mut target]) = actors {
                     // check if the slime is still active, if the target is still in reach, if its still alive
                     // the "is this target valid" check should be the same code both here and above
-                    target.2.health_current -= attacker.2.attack;
+                    target.1.health_current -= attacker.1.attack;
                     println!(
                         "{} attacks {}, dealing {} damage!",
-                        attacker.1, target.1, attacker.2.attack
+                        attacker.0, target.0, attacker.1.attack
                     );
                 }
             }
