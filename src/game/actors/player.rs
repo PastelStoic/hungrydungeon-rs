@@ -107,9 +107,21 @@ fn process_event(
     }
 }
 
-fn player_attack(mut reader: EventReader<PlayerAttackEvent>) {
+fn player_attack(
+    mut reader: EventReader<PlayerAttackEvent>,
+    mut query: Query<(&Name, &mut Actor)>,
+) {
     for ev in reader.read() {
-        println!("Attack event");
+        let actors = query.get_many_mut([ev.player, ev.target]);
+        if let Ok([attacker, mut target]) = actors {
+            // check if the slime is still active, if the target is still in reach, if its still alive
+            // the "is this target valid" check should be the same code both here and above
+            target.1.health_current -= attacker.1.attack;
+            println!(
+                "{} attacks {}, dealing {} damage!",
+                attacker.0, target.0, attacker.1.attack
+            );
+        }
     }
 }
 
