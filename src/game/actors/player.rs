@@ -59,6 +59,7 @@ pub struct PlayerStruggleEvent {
 #[derive(Component)]
 pub struct Player(pub u64);
 
+#[allow(clippy::too_many_arguments)]
 fn process_event(
     q_actors: Query<(Entity, &Player)>,
     q_actor_names: Query<(Entity, &Name), With<Actor>>,
@@ -125,9 +126,24 @@ fn player_attack(
     }
 }
 
-fn player_devour(mut reader: EventReader<PlayerDevourEvent>) {
+fn player_devour(
+    mut reader: EventReader<PlayerDevourEvent>,
+    q_organs: Query<(Entity, &Organ)>,
+    q_names: Query<&Name>,
+    mut commands: Commands,
+) {
     for ev in reader.read() {
-        println!("Devour event");
+        // do some calculation based on the stats of the parent to determine if success
+
+        // sets parent of target to the organ
+        let organ = q_organs
+            .get(ev.organ)
+            .expect("Organ has vanished before using!");
+        commands.entity(ev.prey).set_parent(organ.0);
+        let pred = q_names.get(ev.player).expect("Actor should have name!");
+        let prey = q_names.get(ev.prey).expect("Actor should have name!");
+        let organ_name = q_names.get(organ.0).expect("Organ should have name!");
+        println!("{} devours {} with their {}!", pred, prey, organ_name);
     }
 }
 

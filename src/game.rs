@@ -52,9 +52,9 @@ pub fn launch_game(rx: Receiver<GameInputType>, tx: Sender<String>) {
 }
 
 fn spawn_test(mut commands: Commands) {
-    commands.spawn(rooms::GameRoom).with_children(|mut room| {
-        slime::spawn(&mut room);
-        slimegirl::spawn(&mut room);
+    commands.spawn(rooms::GameRoom).with_children(|room| {
+        slime::spawn(room);
+        slimegirl::spawn(room);
         room.spawn((
             Name::new("Player"),
             Player(5),

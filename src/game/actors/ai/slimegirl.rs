@@ -91,6 +91,7 @@ fn check_ai_should_run(
 }
 
 fn ai_choose_action(
+    #[allow(clippy::type_complexity)]
     query: Query<(
         Entity,
         &Name,

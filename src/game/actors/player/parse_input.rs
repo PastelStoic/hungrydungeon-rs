@@ -5,7 +5,7 @@ pub enum PlayerActionEventType {
     Struggle,
 }
 
-pub fn parse_player_input(input: &String) -> Result<PlayerActionEventType, &'static str> {
+pub fn parse_player_input(input: &str) -> Result<PlayerActionEventType, &'static str> {
     let mut split = input.split_whitespace();
     match split.next() {
         Some(w1) => match w1 {
