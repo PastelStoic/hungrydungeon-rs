@@ -27,3 +27,5 @@ Player input is the new struggle, so here's the flow:
    would have
 
 The input parser needs support for names that have multiple words in them.
+
+Rather than using events, I should replace most actions with oneshot systems.
