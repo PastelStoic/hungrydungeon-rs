@@ -25,3 +25,5 @@ Player input is the new struggle, so here's the flow:
    are in reach, etc)
 4. If so, new event is created to actually execute the action, same as an AI
    would have
+
+The input parser needs support for names that have multiple words in them.
