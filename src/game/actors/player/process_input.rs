@@ -24,8 +24,7 @@ pub fn map_input_to_event(
 
     let player = player.0;
 
-    let ev_type = parse_player_input(input);
-    match ev_type {
+    match parse_player_input(input) {
         Ok(ev_type) => match ev_type {
             PlayerActionEventType::Attack { target_name } => {
                 let target = q_names.iter().find(|e| e.1.as_str() == target_name);
