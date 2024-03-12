@@ -20,7 +20,7 @@ pub enum ParsedPlayerEvent {
 
 pub fn map_input_to_event(
     player_id: u64,
-    input: &String,
+    input: &str,
     q_actors: &Query<(Entity, &Player)>,
     q_actor_names: &Query<(Entity, &Name), With<Actor>>,
     q_organ_names: &Query<(Entity, &Name), With<Organ>>,
