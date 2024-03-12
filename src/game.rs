@@ -8,7 +8,7 @@ use bevy::{
 };
 use std::time::Duration;
 
-use self::actors::player::{Player, PlayerInputStringEvent};
+use self::actors::player::PlayerInputStringEvent;
 
 const GAME_LOOP_MILIS: u64 = 100;
 
