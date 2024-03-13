@@ -43,8 +43,6 @@ pub fn run_attack(
 ) {
     let actors = query.get_many_mut([attacker, defender]);
     if let Ok([attacker, mut target]) = actors {
-        // check if the slime is still active, if the target is still in reach, if its still alive
-        // the "is this target valid" check should be the same code both here and above
         target.2.health_current -= attacker.2.attack;
         println!(
             "{} attacks {}, dealing {} damage!",

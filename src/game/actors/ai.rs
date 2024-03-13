@@ -8,9 +8,7 @@ pub struct AiPlugin;
 impl Plugin for AiPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(AiTimer(Timer::from_seconds(10., TimerMode::Repeating)))
-            // Ai decision trees go here
-            .add_systems(Update, tick_ai_timer)
-            .add_plugins((slimegirl::SlimeGirlAiPlugin));
+            .add_systems(Update, tick_ai_timer);
     }
 }
 
