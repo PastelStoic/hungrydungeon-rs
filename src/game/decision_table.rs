@@ -30,6 +30,10 @@ impl<T> DecisionTable<T> {
     pub fn len(&self) -> usize {
         self.options.len()
     }
+
+    pub fn is_empty(&self) -> bool {
+        self.options.is_empty()
+    }
 }
 
 impl<T> DecisionTable<T>
@@ -45,5 +49,11 @@ where
             }
             Err(_) => None,
         }
+    }
+}
+
+impl<T> Default for DecisionTable<T> {
+    fn default() -> Self {
+        Self::new()
     }
 }
