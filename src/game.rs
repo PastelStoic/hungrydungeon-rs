@@ -1,5 +1,7 @@
 pub mod actors;
+pub mod decision_table;
 pub mod rooms;
+
 use actors::{ai::*, organs::OrganPlugin};
 use async_channel::{Receiver, Sender};
 use bevy::{
@@ -51,11 +53,13 @@ pub fn launch_game(rx: Receiver<GameInputType>, tx: Sender<String>) {
         .run();
 }
 
-fn spawn_test(mut commands: Commands) {
-    commands.spawn(rooms::GameRoom).with_children(|room| {
-        slime::spawn(room);
-        slimegirl::spawn(room);
-        room.spawn((
+fn spawn_test(world: &mut World) {
+    let room = world.spawn(rooms::GameRoom).id();
+
+    let slime = slime::spawn(world);
+    let slimegirl = slimegirl::spawn(world);
+    let player = world
+        .spawn((
             Name::new("Player"),
             Player(5),
             Actor {
@@ -64,8 +68,12 @@ fn spawn_test(mut commands: Commands) {
                 attack: 10,
                 defense: 10,
             },
-        ));
-    });
+        ))
+        .id();
+
+    world
+        .entity_mut(room)
+        .push_children(&[slime, slimegirl, player]);
 }
 
 /// Receives input from other threads and passes them to whichever system is meant to handle them.

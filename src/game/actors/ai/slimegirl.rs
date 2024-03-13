@@ -30,8 +30,8 @@ impl Plugin for SlimeGirlAiPlugin {
     }
 }
 
-pub fn spawn(parent: &mut ChildBuilder) {
-    parent
+pub fn spawn(world: &mut World) -> Entity {
+    world
         .spawn((
             Name::new("Slimegirl"),
             Actor {
@@ -55,7 +55,8 @@ pub fn spawn(parent: &mut ChildBuilder) {
                     organ_type: OrganType::Generic,
                 },
             ));
-        });
+        })
+        .id()
 }
 
 #[derive(Event)]
