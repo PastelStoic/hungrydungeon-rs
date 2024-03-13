@@ -39,8 +39,9 @@ One option is to just re-register the system for each spawned entity. Slow?
 Maybe, but also maybe not - it's what's easy, so how about I just do that and
 then see if it's an issue.
 
-I'm starting to see a pattern for AI construction:
+I'm starting to see a pattern for AI construction: a "spawn" method that takes a
+function (to run the ai) and a set of components for the actor and some other
+stuff? Figure out once the code is more complete.
 
-1. a "spawn" method that takes a function (to run the ai) and a set of
-   components for the actor
-2.
+Next up: that whole "act/react/finalize" thing. Test with both damage reduction
+and a thorns effect.
