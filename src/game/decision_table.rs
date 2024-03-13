@@ -26,6 +26,10 @@ impl<T> DecisionTable<T> {
             Err(_) => None,
         }
     }
+
+    pub fn len(&self) -> usize {
+        self.options.len()
+    }
 }
 
 impl<T> DecisionTable<T>
