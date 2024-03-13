@@ -23,12 +23,34 @@ pub struct Organ {
     pub organ_type: OrganType,
 }
 
+pub struct OrganParams {
+    pub health: i32,
+    pub attack: i32,
+    pub defense: i32,
+    pub capacity: i32,
+    pub organ_type: OrganType,
+}
+
 /// Determines specific behavior of an organ
 pub enum OrganType {
     Generic,
     Womb,
     Breast,
     // slime organ, allowing control of which specific actors inside it are digested.
+}
+
+impl Organ {
+    pub fn new(params: OrganParams) -> Organ {
+        Organ {
+            health_current: params.health,
+            health_max: params.health,
+            attack: params.attack,
+            defense: params.defense,
+            capacity: params.capacity,
+            fullness_current: 0,
+            organ_type: params.organ_type,
+        }
+    }
 }
 
 #[derive(Resource)]
