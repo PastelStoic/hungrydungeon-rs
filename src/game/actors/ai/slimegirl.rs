@@ -1,10 +1,7 @@
 use bevy::prelude::*;
 
 use crate::game::{
-    actors::{
-        organs::{Organ, OrganParams, OrganType},
-        Actor,
-    },
+    actors::{organs::Organ, Actor},
     decision_table::DecisionTable,
 };
 
@@ -24,10 +21,7 @@ pub fn spawn(world: &mut World) -> Entity {
             AiBehavior(ai),
         ))
         .with_children(|owner| {
-            owner.spawn((
-                Name::new("Slimegirl stomach"),
-                Organ::default(),
-            ));
+            owner.spawn((Name::new("Slimegirl stomach"), Organ::default()));
         })
         .id()
 }
