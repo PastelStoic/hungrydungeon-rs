@@ -26,13 +26,7 @@ pub fn spawn(world: &mut World) -> Entity {
         .with_children(|owner| {
             owner.spawn((
                 Name::new("Slimegirl stomach"),
-                Organ::new(OrganParams {
-                    health: 100,
-                    attack: 10,
-                    defense: 10,
-                    capacity: 100,
-                    organ_type: OrganType::Generic,
-                }),
+                Organ::default(),
             ));
         })
         .id()
