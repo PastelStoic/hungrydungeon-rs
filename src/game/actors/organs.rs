@@ -51,6 +51,16 @@ impl Organ {
             organ_type: params.organ_type,
         }
     }
+
+    pub fn default() -> Organ {
+        Organ::new(OrganParams {
+            health: 1000,
+            attack: 100,
+            defense: 100,
+            capacity: 100,
+            organ_type: OrganType::Generic,
+        })
+    }
 }
 
 #[derive(Resource)]
