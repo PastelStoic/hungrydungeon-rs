@@ -1,6 +1,7 @@
 pub mod actors;
 pub mod decision_table;
 pub mod rooms;
+pub mod connections;
 
 use actors::{ai::*, organs::OrganPlugin};
 use async_channel::{Receiver, Sender};
@@ -10,10 +11,10 @@ use bevy::{
 };
 use std::time::Duration;
 
-use self::actors::{
+use self::{actors::{
     player::{Player, PlayerInputStringEvent, PlayerPlugin},
     Actor,
-};
+}, connections::ConnectionManager};
 
 const GAME_LOOP_MILIS: u64 = 100;
 
@@ -37,6 +38,7 @@ pub fn launch_game(rx: Receiver<GameInputType>, tx: Sender<String>) {
     App::new()
         .insert_resource(GameInputReceiver(rx))
         .insert_resource(GameOutputSender(tx))
+        .insert_resource(ConnectionManager::new())
         .add_event::<SendMessageToBotEvent>()
         .add_plugins((
             MinimalPlugins.set(ScheduleRunnerPlugin {
