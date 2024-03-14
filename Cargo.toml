@@ -7,8 +7,7 @@ edition = "2021"
 
 [dependencies]
 async-channel = "2.2.0"
-bevy = { version = "0.13.0", default-features = false, features = [ 
-  "multi-threaded",
+bevy = { version = "0.13.0", default-features = false, features = [
 ] }
 rand = "0.8.5"
 strfmt = "0.2.4"
