@@ -26,3 +26,17 @@ fn tick_ai_timer(mut aitimer: ResMut<AiTimer>, time: Res<Time>, query: Query<(En
         }
     }
 }
+
+// experimenting with making AI creation easier
+pub trait Monster {
+    fn run_ai(actor: Entity, world: &mut World);
+    fn create_actor() -> Entity;
+    fn spawn(world: &mut World) -> Entity {
+        //let ai = world.register_system(Monster::run_ai);
+        todo!() // figure out how the hell trait bounds work
+    }
+}
+
+fn example_simplified() {
+
+}
