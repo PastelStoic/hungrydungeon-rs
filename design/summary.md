@@ -27,3 +27,4 @@ A non-exhaustive list of features.
 - Players can escape organs to outside
 - Players can escape from one organ to a connected one
 - Players can interact with other entities
+- Multiple rooms exist, can be connected, and can be moved between
