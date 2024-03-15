@@ -47,9 +47,12 @@ impl ConnectionManager {
         }
     }
 
-    pub fn has_connection(&self, connection: Connection) -> bool {
+    pub fn remove_all_connections(&mut self, entity: Entity) {
         self.connections
-            .iter()
-            .any(|pair| *pair == connection)
+            .retain(|pair| pair.0 != entity && pair.1 != entity);
+    }
+
+    pub fn has_connection(&self, connection: Connection) -> bool {
+        self.connections.iter().any(|pair| *pair == connection)
     }
 }
