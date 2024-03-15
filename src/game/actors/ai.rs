@@ -18,17 +18,25 @@ pub struct AiTimer(Timer);
 #[derive(Component)]
 pub struct AiBehavior(SystemId<Entity>);
 
-fn tick_ai_timer(mut aitimer: ResMut<AiTimer>, time: Res<Time>, query: Query<(Entity, &AiBehavior)>, mut commands: Commands) {
+fn tick_ai_timer(
+    mut aitimer: ResMut<AiTimer>,
+    time: Res<Time>,
+    query: Query<(Entity, &AiBehavior)>,
+    mut commands: Commands,
+) {
     aitimer.0.tick(time.delta());
     if aitimer.0.finished() {
         for ai in &query {
-            commands.run_system_with_input(ai.1.0, ai.0);
+            commands.run_system_with_input(ai.1 .0, ai.0);
         }
     }
 }
 
 // experimenting with making AI creation easier
-pub trait Monster where Self: 'static {
+pub trait Monster
+where
+    Self: 'static,
+{
     fn run_ai(entity: In<Entity>, world: &mut World);
     fn create_actor(world: &mut World) -> Entity;
     fn spawn(world: &mut World) -> Entity {
@@ -37,8 +45,4 @@ pub trait Monster where Self: 'static {
         world.entity_mut(spawned).insert(AiBehavior(ai));
         spawned
     }
-}
-
-fn example_simplified() {
-
 }
