@@ -19,12 +19,11 @@ pub enum ParsedPlayerEvent {
 }
 
 pub fn map_input_to_event(
-    player_id: u64,
-    input: &str,
-    q_actors: &Query<(Entity, &Player)>,
-    q_actor_names: &Query<(Entity, &Name), With<Actor>>,
-    q_organ_names: &Query<(Entity, &Name), With<Organ>>,
-    q_room_names: &Query<(Entity, &Name), With<GameRoom>>,
+    In((player_id, input)): In<(u64, String)>,
+    q_actors: Query<(Entity, &Player)>,
+    q_actor_names: Query<(Entity, &Name), With<Actor>>,
+    q_organ_names: Query<(Entity, &Name), With<Organ>>,
+    q_room_names: Query<(Entity, &Name), With<GameRoom>>,
 ) -> Result<ParsedPlayerEvent, String> {
     let player = q_actors.iter().find(|p| p.1 .0 == player_id);
     let Some(player) = player else {
@@ -33,7 +32,7 @@ pub fn map_input_to_event(
 
     let player = player.0;
 
-    match parse_player_input(input) {
+    match parse_player_input(&input) {
         Ok(ev_type) => match ev_type {
             PlayerActionEventType::Attack { target_name } => {
                 let target = q_actor_names.iter().find(|e| e.1.as_str() == target_name);
