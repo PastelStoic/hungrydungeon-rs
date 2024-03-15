@@ -14,7 +14,8 @@ pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<PlayerInputStringEvent>();
+        app.add_event::<PlayerInputStringEvent>()
+            .add_systems(Update, process_event);
     }
 }
 
@@ -57,6 +58,8 @@ pub fn process_event(
     for ev in params.get(world).read() {
         events.push((ev.0, ev.1.clone()))
     }
+
+    params.apply(world);
 
     for ev in events {
         match world.run_system_once_with((ev.0, ev.1), map_input_to_event) {
