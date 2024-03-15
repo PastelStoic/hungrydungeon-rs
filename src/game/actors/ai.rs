@@ -28,12 +28,14 @@ fn tick_ai_timer(mut aitimer: ResMut<AiTimer>, time: Res<Time>, query: Query<(En
 }
 
 // experimenting with making AI creation easier
-pub trait Monster {
-    fn run_ai(actor: Entity, world: &mut World);
-    fn create_actor() -> Entity;
+pub trait Monster where Self: 'static {
+    fn run_ai(entity: In<Entity>, world: &mut World);
+    fn create_actor(world: &mut World) -> Entity;
     fn spawn(world: &mut World) -> Entity {
-        //let ai = world.register_system(Monster::run_ai);
-        todo!() // figure out how the hell trait bounds work
+        let ai = world.register_system(Self::run_ai);
+        let spawned = Self::create_actor(world);
+        world.entity_mut(spawned).insert(AiBehavior(ai));
+        spawned
     }
 }
 
