@@ -5,7 +5,7 @@ use crate::game::{
     decision_table::DecisionTable,
 };
 
-use super::{AiBehavior, Monster};
+use super::Monster;
 
 pub struct Slimegirl;
 
