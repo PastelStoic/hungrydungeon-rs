@@ -7,16 +7,7 @@ use super::AiBehavior;
 pub fn spawn(world: &mut World) -> Entity {
     let ai = world.register_system(slime_ai);
     world
-        .spawn((
-            Name::new("Slime"),
-            AiBehavior(ai),
-            Actor {
-                health_current: 100,
-                health_max: 100,
-                attack: 10,
-                defense: 10,
-            },
-        ))
+        .spawn((Name::new("Slime"), AiBehavior(ai), Actor::default()))
         .id()
 }
 
