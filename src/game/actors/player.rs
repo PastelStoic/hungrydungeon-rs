@@ -140,6 +140,9 @@ fn player_move_room(
     }
 }
 
-fn player_struggle(In(ev): In<PlayerStruggleEvent>) {
+fn player_struggle(In(ev): In<PlayerStruggleEvent>, 
+q_parents: Query<&Parent>,) {
+    let player_parent = q_parents.get(ev.player).expect("Player must have parent!");
+    // get organ for parent
     println!("Struggle event");
 }
