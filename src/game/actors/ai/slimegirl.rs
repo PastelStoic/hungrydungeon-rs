@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{ecs::system::RunSystemOnce, prelude::*};
 
 use crate::game::{
     actors::{organs::Organ, Actor},
@@ -52,20 +52,14 @@ impl Monster for Slimegirl {
         if let Some(chosen_action) = possible_actions.decide() {
             match chosen_action {
                 ActionEvent::Attack { attacker, defender } => {
-                    let sys = world.register_system(run_attack);
-                    world
-                        .run_system_with_input(sys, (attacker, defender))
-                        .unwrap();
+                    world.run_system_once_with((attacker, defender), run_attack);
                 }
                 ActionEvent::Devour {
                     attacker,
                     defender,
                     organ,
                 } => {
-                    let sys = world.register_system(run_devour);
-                    world
-                        .run_system_with_input(sys, (attacker, defender, organ))
-                        .unwrap();
+                    world.run_system_once_with((attacker, defender, organ), run_devour);
                 }
             }
         }
