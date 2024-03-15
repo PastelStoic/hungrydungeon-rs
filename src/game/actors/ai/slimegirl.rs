@@ -13,7 +13,7 @@ impl Monster for Slimegirl {
     fn run_ai(entity: In<Entity>, world: &mut World) {
         let mut q_actors = world.query::<(Entity, &Name, &Actor, &Parent, Option<&Children>)>();
         let mut q_organs = world.query::<(Entity, &Organ)>();
-    
+
         let slime = q_actors.get(world, *entity).unwrap();
         // make sure the organ exists, and we'll probably want to add a check for vore with each organ
         let slime_organ = q_organs
@@ -22,11 +22,12 @@ impl Monster for Slimegirl {
                 *slime.4.expect("missing organ!").iter().next().unwrap(),
             )
             .unwrap();
-    
+
         let mut possible_actions = DecisionTable::new();
-    
+
         for target in q_actors.iter(world) {
-            if slime.0 != target.0 && slime.3.get() == target.3.get() && target.2.health_current > 0 {
+            if slime.0 != target.0 && slime.3.get() == target.3.get() && target.2.health_current > 0
+            {
                 possible_actions.push((
                     50,
                     ActionEvent::Attack {
@@ -46,7 +47,7 @@ impl Monster for Slimegirl {
                 }
             }
         }
-    
+
         // picks target, creates attack event. Unique events for every possible action?
         if let Some(chosen_action) = possible_actions.decide() {
             match chosen_action {
