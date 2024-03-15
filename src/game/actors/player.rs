@@ -6,7 +6,7 @@ use bevy::{
 };
 use process_input::{map_input_to_event, ParsedPlayerEvent};
 
-use crate::game::SendMessageToBotEvent;
+use crate::game::{connections::ConnectionManager, rooms::GameRoom, SendMessageToBotEvent};
 
 use super::{organs::Organ, Actor};
 
@@ -117,8 +117,27 @@ fn player_devour(
     println!("{} devours {} with their {}!", pred, prey, organ_name);
 }
 
-fn player_move_room(In(ev): In<PlayerMoveRoomEvent>) {
-    println!("Move event");
+fn player_move_room(
+    In(ev): In<PlayerMoveRoomEvent>,
+    rooms: Res<ConnectionManager>,
+    q_parents: Query<&Parent>,
+    q_rooms: Query<&GameRoom>,
+    mut commands: Commands,
+) {
+    let player_parent = q_parents.get(ev.player).expect("Player must have parent!");
+    if let Ok(_player_room) = q_rooms.get(player_parent.get()) {
+        let connected_rooms = rooms.find_connections(player_parent.get());
+        if connected_rooms.contains(&ev.room) {
+            // also check if player is allowed to move
+            let _new_room = q_rooms.get(ev.room).unwrap();
+            commands.entity(ev.player).set_parent(ev.room);
+            println!("Successful move");
+        } else {
+            println!("Desired room is not connected to this one.");
+        }
+    } else {
+        println!("Player is not in a room");
+    }
 }
 
 fn player_struggle(In(ev): In<PlayerStruggleEvent>) {
