@@ -35,7 +35,7 @@ impl Monster for Slimegirl {
                         defender: target.0,
                     },
                 ));
-                if slime_organ.1.fullness_current + 3 /* size of prey */ <= slime_organ.1.capacity {
+                if slime_organ.1.fullness_current + target.2.size <= slime_organ.1.capacity {
                     possible_actions.push((
                         10,
                         ActionEvent::Devour {
@@ -67,15 +67,7 @@ impl Monster for Slimegirl {
 
     fn create_actor(world: &mut World) -> Entity {
         world
-            .spawn((
-                Name::new("Slimegirl"),
-                Actor {
-                    health_current: 100,
-                    health_max: 100,
-                    attack: 10,
-                    defense: 10,
-                },
-            ))
+            .spawn((Name::new("Slimegirl"), Actor::default()))
             .with_children(|owner| {
                 owner.spawn((Name::new("Slimegirl stomach"), Organ::default()));
             })
