@@ -1,7 +1,7 @@
 pub mod actors;
+pub mod connections;
 pub mod decision_table;
 pub mod rooms;
-pub mod connections;
 
 use actors::{ai::*, organs::OrganPlugin};
 use async_channel::{Receiver, Sender};
@@ -11,10 +11,13 @@ use bevy::{
 };
 use std::time::Duration;
 
-use self::{actors::{
-    player::{Player, PlayerInputStringEvent, PlayerPlugin},
-    Actor,
-}, connections::ConnectionManager};
+use self::{
+    actors::{
+        player::{Player, PlayerInputStringEvent, PlayerPlugin},
+        Actor,
+    },
+    connections::ConnectionManager,
+};
 
 const GAME_LOOP_MILIS: u64 = 100;
 
@@ -59,18 +62,9 @@ fn spawn_test(world: &mut World) {
     let room = world.spawn(rooms::GameRoom).id();
 
     let slime = slime::spawn(world);
-    let slimegirl = slimegirl::spawn(world);
+    let slimegirl = slimegirl::Slimegirl::spawn(world);
     let player = world
-        .spawn((
-            Name::new("Player"),
-            Player(5),
-            Actor {
-                health_current: 100,
-                health_max: 100,
-                attack: 10,
-                defense: 10,
-            },
-        ))
+        .spawn((Name::new("Player"), Player(5), Actor::default()))
         .id();
 
     world
