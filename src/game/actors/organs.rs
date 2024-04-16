@@ -6,7 +6,7 @@ pub struct OrganPlugin;
 
 impl Plugin for OrganPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(OrganTimer(Timer::from_seconds(10., TimerMode::Repeating)))
+        app.insert_resource(OrganTimer(Timer::from_seconds(30., TimerMode::Repeating)))
             // Ai decision trees go here
             .add_systems(Update, (tick_timer, digest));
     }
