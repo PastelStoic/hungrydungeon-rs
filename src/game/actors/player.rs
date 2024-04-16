@@ -85,10 +85,14 @@ pub fn process_event(
     }
 }
 
-fn player_attack(In(ev): In<PlayerAttackEvent>, mut query: Query<(&Name, &mut Actor)>) {
+fn player_attack(In(ev): In<PlayerAttackEvent>, mut query: Query<(&Name, &mut Actor, &Parent)>) {
     let actors = query.get_many_mut([ev.player, ev.target]);
     if let Ok([attacker, mut target]) = actors {
         // check if the slime is still active, if the target is still in reach, if its still alive
+        if attacker.2.get() != target.2.get() {
+            println!("Cannot attack, returning early.");
+            return;
+        }
         // the "is this target valid" check should be the same code both here and above
         target.1.health_current -= attacker.1.attack;
         println!(
@@ -140,9 +144,21 @@ fn player_move_room(
     }
 }
 
-fn player_struggle(In(ev): In<PlayerStruggleEvent>, 
-q_parents: Query<&Parent>,) {
-    let player_parent = q_parents.get(ev.player).expect("Player must have parent!");
-    // get organ for parent
+fn player_struggle(
+    In(ev): In<PlayerStruggleEvent>,
+    q_parents: Query<&Parent>,
+    mut q_organs: Query<(Entity, &mut Organ)>,
+) {
+    let Ok(mut pred_organ) = q_organs.get_mut(
+        q_parents
+            .get(ev.player)
+            .expect("Player must have parent!")
+            .get(),
+    ) else {
+        println!("Can't struggle, not inside an organ.");
+        return;
+    };
+
+    pred_organ.1.health_current -= 10; // player attack
     println!("Struggle event");
 }
