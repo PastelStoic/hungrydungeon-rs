@@ -23,3 +23,9 @@ impl Default for Actor {
         }
     }
 }
+
+impl Actor {
+    pub fn hp_percent(&self) -> f32 {
+        self.health_current as f32 / self.health_max as f32
+    }
+}
