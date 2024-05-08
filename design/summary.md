@@ -1,5 +1,9 @@
 A non-exhaustive list of features.
 
+Completed:
+
+To complete:
+
 - Actors become food when fully digested
 - Stats can have modifiers
 - Player information can be saved to and loaded from a database
