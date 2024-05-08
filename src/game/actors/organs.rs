@@ -36,6 +36,7 @@ pub enum OrganType {
     Womb,
     Breast,
     // slime organ, allowing control of which specific actors inside it are digested.
+    // TODO tails, cocks, etc
 }
 
 impl Organ {
