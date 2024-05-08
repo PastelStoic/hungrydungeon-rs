@@ -83,10 +83,12 @@ fn digest(
         for prey in organ.2.iter() {
             if let Ok(mut prey) = q_prey.get_mut(*prey) {
                 prey.1.health_current -= organ.0.attack;
+                // TODO write this to bot
                 println!(
                     "{} digests {} for {} damage!",
                     organ.1, prey.0, organ.0.attack
                 );
+                // TODO if actor is fully digested, despawn them, and reparent everything in all their organs
             }
         }
     }
