@@ -33,6 +33,9 @@ fn tick_ai_timer(
 }
 
 // experimenting with making AI creation easier
+// maybe I can have the monster return an out value 
+// that gets passed to a "handle" function? Save the trouble 
+// of registering.
 pub trait Monster
 where
     Self: 'static,

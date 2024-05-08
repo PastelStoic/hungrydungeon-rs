@@ -75,6 +75,7 @@ fn spawn_test(world: &mut World) {
 /// Receives input from other threads and passes them to whichever system is meant to handle them.
 fn receive_input(
     rcv: Res<GameInputReceiver>,
+    snd: Res<GameOutputSender>,
     mut writer: EventWriter<PlayerInputStringEvent>,
     mut exit: EventWriter<AppExit>,
 ) {
@@ -84,17 +85,20 @@ fn receive_input(
                 writer.send(PlayerInputStringEvent(id, input));
             }
             GameInputType::Quit => {
+                // lets the bot know there's no more messages incoming
+                snd.0.close();
                 exit.send(AppExit);
             }
         }
     }
 }
 
-fn send_output(_snd: Res<GameOutputSender>, mut reader: EventReader<SendMessageToBotEvent>) {
+fn send_output(snd: Res<GameOutputSender>, mut reader: EventReader<SendMessageToBotEvent>) {
     for ev in reader.read() {
         println!("{}", ev.message);
-        // snd.0
-        //     .try_send(ev.message.clone())
-        //     .expect("Sending message to bot failed!");
+        // TODO note: below code does nothing while using stdin for input. Above line is needed for now. 
+        snd.0
+            .try_send(ev.message.clone())
+            .expect("Sending message to bot failed!");
     }
 }

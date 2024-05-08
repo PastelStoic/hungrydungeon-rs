@@ -65,6 +65,7 @@ pub fn process_event(
         match world.run_system_once_with((ev.0, ev.1), map_input_to_event) {
             Ok(parseres) => match parseres {
                 ParsedPlayerEvent::Attack(e) => {
+                    println!("Now running attack");
                     world.run_system_once_with(e, player_attack);
                 }
                 ParsedPlayerEvent::Devour(e) => {

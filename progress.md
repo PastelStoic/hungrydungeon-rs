@@ -45,3 +45,11 @@ stuff? Figure out once the code is more complete.
 
 Next up: that whole "act/react/finalize" thing. Test with both damage reduction
 and a thorns effect.
+
+Back at it again after a long while, lets start with what I absolutely need.
+
+1. When attacking, it should check that your target is in range.
+
+Rather than using a return value, I can send signals to discord via events;
+every trigger has an event id of some kind, which tells the discord client which
+event to respond to.
