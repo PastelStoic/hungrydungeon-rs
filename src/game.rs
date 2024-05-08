@@ -4,7 +4,7 @@ pub mod decision_table;
 pub mod rooms;
 
 use actors::{ai::*, organs::OrganPlugin};
-use async_channel::{Receiver, Sender};
+use async_channel::{Receiver, Sender, TryRecvError};
 use bevy::{
     app::{AppExit, RunMode, ScheduleRunnerPlugin},
     prelude::*,
@@ -23,7 +23,6 @@ const GAME_LOOP_MILIS: u64 = 100;
 
 pub enum GameInputType {
     PlayerInput(u64, String),
-    Quit,
 }
 
 #[derive(Event)]
@@ -84,19 +83,18 @@ fn receive_input(
             GameInputType::PlayerInput(id, input) => {
                 writer.send(PlayerInputStringEvent(id, input));
             }
-            GameInputType::Quit => {
-                // lets the bot know there's no more messages incoming
-                snd.0.close();
-                exit.send(AppExit);
-            }
         }
+    }
+    if let Err(TryRecvError::Closed) = rcv.0.try_recv() {
+        snd.0.close();
+        exit.send(AppExit);
     }
 }
 
 fn send_output(snd: Res<GameOutputSender>, mut reader: EventReader<SendMessageToBotEvent>) {
     for ev in reader.read() {
         println!("{}", ev.message);
-        // TODO note: below code does nothing while using stdin for input. Above line is needed for now. 
+        // TODO note: below code does nothing while using stdin for input. Above line is needed for now.
         snd.0
             .try_send(ev.message.clone())
             .expect("Sending message to bot failed!");

@@ -36,7 +36,7 @@ async fn write_loop(tx: Sender<GameInputType>) {
         stdin().read_line(&mut s).expect("Invalid string input");
 
         if s == "exit" {
-            tx.send(GameInputType::Quit).await.unwrap();
+            tx.close();
             break;
         }
 
